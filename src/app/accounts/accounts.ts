@@ -1,4 +1,4 @@
-import { BoolColumn, Context, DateTimeColumn, EntityClass, IdColumn, IdEntity, NumberColumn, StringColumn, ValueListColumn } from '@remult/core';
+import { BoolColumn, Context, DateTimeColumn, EntityClass, IdColumn, IdEntity, NumberColumn, ServerFunction, StringColumn, ValueListColumn } from '@remult/core';
 import { Roles } from '../users/roles';
 import { AmountColumn } from './Amount-Column';
 
@@ -59,3 +59,58 @@ export class TransactionType {
     }
 }
 
+
+@EntityClass
+export class Requests extends IdEntity {
+    family = new IdColumn();
+    familyMember = new IdColumn();
+    account = new IdColumn();
+    timestamp = new DateTimeColumn("מתי");
+    type = new ValueListColumn(TransactionType);
+    status = new ValueListColumn(RequestStatus, { defaultValue: RequestStatus.pending });
+    description = new StringColumn('תאור');
+    amount = new AmountColumn();
+
+    constructor(context: Context) {
+        super({
+            caption: 'בקשות',
+            name: 'requests',
+            allowApiUpdate: false,
+            allowApiDelete: false,
+            allowApiInsert: true,
+
+            defaultOrderBy: () => [{ column: this.timestamp, descending: true }],
+            saving: async () => {
+                if (context.onServer && this.isNew()) {
+                    this.timestamp.value = new Date();
+                    let acc = await context.for(Accounts).findId(this.account);
+                    this.familyMember.value = acc.familyMember.value;
+                    this.family.value = acc.family.value;
+                }
+            }
+        })
+    }
+    @ServerFunction({ allowed: Roles.parent })
+    static async setStatus(reqId: string, approve: boolean, context?: Context) {
+        let r = await context.for(Requests).findId(reqId);
+        if (r.status.value != RequestStatus.pending)
+            throw new Error('לא ניתן לעדכן סטטוס לבקשה זו');
+        r.status.value = approve ? RequestStatus.approved : RequestStatus.denied;
+        if (r.status.value = RequestStatus.approved) {
+            let t = context.for(Transactions).create();
+            t.account.value = r.account.value;
+            t.type.value = r.type.value;
+            t.amount.value = r.amount.value;
+            t.description.value = r.description.value;
+            await t.save();
+        }
+        await r.save();
+    }
+}
+
+export class RequestStatus {
+    static pending = new RequestStatus('ממתין');
+    static approved = new RequestStatus('אושר');
+    static denied = new RequestStatus('נדחה');
+    constructor(public caption: string) { }
+}

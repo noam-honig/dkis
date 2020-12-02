@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Context } from '@remult/core';
-import { Accounts, Transactions, TransactionType } from '../accounts/accounts';
+import { Accounts, Requests, RequestStatus, Transactions, TransactionType } from '../accounts/accounts';
 import { InputAreaComponent } from '../common/input-area/input-area.component';
 import { FamilyMembers } from '../families/families';
 
@@ -14,6 +14,7 @@ export class ParentChildViewComponent implements OnInit {
   @Input() child: FamilyMembers;
   account: Accounts;
   transactions: Transactions[] = [];
+  requests: Requests[] = [];
   constructor(private context: Context) { }
 
   async ngOnInit() {
@@ -21,7 +22,21 @@ export class ParentChildViewComponent implements OnInit {
     this.loadTransactions();
   }
   async loadTransactions() {
+    
+    await this.account.reload();
     this.transactions = await this.context.for(Transactions).find({ where: t => t.account.isEqualTo(this.account.id) });
+    this.requests = await this.context.for(Requests).find({ where: t => t.account.isEqualTo(this.account.id).and(t.status.isEqualTo(RequestStatus.pending)) });
+  }
+  async deny(r: Requests) {
+    await Requests.setStatus(r.id.value,false);
+    this.loadTransactions();
+
+  }
+  
+  async approve(r:Requests){
+    await Requests.setStatus(r.id.value,true);
+    this.loadTransactions();
+    
   }
   async deposit() {
     let t = this.context.for(Transactions).create();
@@ -32,7 +47,8 @@ export class ParentChildViewComponent implements OnInit {
       columnSettings: () => [t.amount, t.description],
       ok: async () => {
         await t.save();
-        await this.account.reload();
+        
+        await this.loadTransactions();
       }
     });
   }
@@ -45,8 +61,8 @@ export class ParentChildViewComponent implements OnInit {
       columnSettings: () => [t.amount, t.description],
       ok: async () => {
         await t.save();
-        await this.account.reload();
-        this.loadTransactions();
+        
+        await this.loadTransactions();
       }
     });
   }

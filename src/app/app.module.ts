@@ -32,6 +32,7 @@ import { ChooseFamilyMemberComponent } from './choose-family-member/choose-famil
 import { ParentViewComponent } from './parent-view/parent-view.component';
 import { ParentChildViewComponent } from './parent-child-view/parent-child-view.component';
 import { MatTabsModule } from '@angular/material/tabs';
+import { ChildComponent } from './child/child.component';
 
 @NgModule({
   declarations: [
@@ -47,7 +48,8 @@ import { MatTabsModule } from '@angular/material/tabs';
     CtrlGComponent,
     ChooseFamilyMemberComponent,
     ParentViewComponent,
-    ParentChildViewComponent
+    ParentChildViewComponent,
+    ChildComponent
   ],
   imports: [
     BrowserModule,

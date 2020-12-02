@@ -60,6 +60,9 @@ export class HomeComponent implements OnInit {
   showParentView(){
     return this.context.isAllowed(Roles.parent);
   }
+  showChildView(){
+    return this.context.isAllowed(Roles.child);
+  }
 
   ngOnInit() {
   }

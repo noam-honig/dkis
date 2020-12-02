@@ -1,0 +1,6 @@
+שלום {{context.user.name}}
+<div *ngIf="this.account">
+    יתרה: {{this.account.balance.displayValue}}
+</div>
+
+<button (click)="requestWithdrawal()">תנו לי כסף לקנות משהו</button>
