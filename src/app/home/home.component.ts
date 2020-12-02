@@ -57,6 +57,9 @@ export class HomeComponent implements OnInit {
   showChooseFamilyMember() {
     return this.context.isAllowed(Roles.familyInfo);
   }
+  showParentView(){
+    return this.context.isAllowed(Roles.parent);
+  }
 
   ngOnInit() {
   }

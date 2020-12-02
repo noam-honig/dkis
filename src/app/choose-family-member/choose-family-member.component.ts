@@ -16,7 +16,7 @@ export class ChooseFamilyMemberComponent implements OnInit {
   constructor(private context: Context, private authService: JwtSessionManager) { }
   members: FamilyMembers[] = [];
   async ngOnInit() {
-    this.members = await this.context.for(FamilyMembers).find({ orderBy: o => [{ column: o.isParent, descending: true }, o.name] });
+    this.members = await this.context.for(FamilyMembers).find();
   }
   getFamilyName() {
     return getInfo(this.context).familyName;

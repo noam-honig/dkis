@@ -1,4 +1,5 @@
 import { BoolColumn, Context, DateTimeColumn, EntityClass, IdColumn, IdEntity, NumberColumn, StringColumn, UserInfo, ValueListColumn } from '@remult/core';
+import { Accounts } from '../accounts/accounts';
 import { Roles } from '../users/roles';
 import { CurrentUserInfo, getInfo } from './current-user-info';
 
@@ -43,8 +44,13 @@ export class FamilyMembers extends IdEntity {
         super({
             caption: 'חברי משפחה',
             name: 'familyMembers',
+            defaultOrderBy: () =>
+                [{ column: this.isParent, descending: true }, this.name],
+
+            apiDataFilter: () => this.family.isEqualTo(getInfo(this.context).familyId),
             fixedWhereFilter: () => {
-                return this.family.isEqualTo(getInfo(this.context).familyId);
+                if (this.context.isSignedIn())
+                    return this.family.isEqualTo(getInfo(this.context).familyId);
             }
         })
     }
@@ -67,52 +73,3 @@ export class FamilyMembers extends IdEntity {
     }
 }
 
-@EntityClass
-export class Accounts extends IdEntity {
-    family = new IdColumn();
-    familyMember = new IdColumn();
-    name = new StringColumn("שם");
-    isPrimary = new BoolColumn("ראשי");
-    balance = new NumberColumn("יתרה");
-    constructor() {
-        super({
-            caption: 'חשבונות',
-            name: 'accounts'
-        })
-    }
-}
-@EntityClass
-export class Transactions extends IdEntity {
-    family = new IdColumn();
-    familyMember = new IdColumn();
-    account = new IdColumn();
-    transactionTime = new DateTimeColumn("מתי");
-    type = new ValueListColumn(TransactionType);
-    amount = new AmountColumn("סכום");
-    balance = new NumberColumn();
-    constructor() {
-        super({
-            caption: 'תנועות',
-            name: 'transactions'
-        })
-    }
-}
-
-export class TransactionType {
-    static deposit = new TransactionType("הפקדה");
-    static withdrawal = new TransactionType("משיכה");
-
-    constructor(public caption: string) {
-
-    }
-}
-
-
-export class AmountColumn extends NumberColumn {
-    constructor(caption: string = "יתרה") {
-        super({
-            caption: caption,
-            decimalDigits: 2
-        })
-    }
-}

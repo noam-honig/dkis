@@ -1,6 +1,6 @@
 import { Context, ServerController, ServerFunction, ServerMethod, StringColumn } from '@remult/core';
 import { ServerSignIn } from '../users/server-sign-in';
-import { Families, FamilyMembers } from './families';
+import { Families } from './families';
 
 @ServerController({
     key: 'createFamily',

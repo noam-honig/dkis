@@ -1,0 +1,18 @@
+<div *ngIf="this.account">
+    יתרה: {{this.account.balance.displayValue}}
+</div>
+<div>
+    <button (click)="deposit()">הפקדה</button>
+    <button (click)="withdrawal()">משיכה</button>
+</div>
+<mat-nav-list role="list">
+    <ng-container *ngFor="let t of transactions">
+        <mat-list-item>
+            <!-- <mat-icon mat-list-icon>{{t.type.value.icon}}</mat-icon> -->
+            <div mat-line>{{t.type.value.caption}} , {{t.amount.displayValue}}, {{t.transactionTime.displayValue}}</div>
+            <mat-divider></mat-divider>
+        </mat-list-item>
+
+
+    </ng-container>
+</mat-nav-list>

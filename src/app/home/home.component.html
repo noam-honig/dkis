@@ -3,10 +3,13 @@
   <button (click)="signIn()">כניסה </button>
   <button (click)="exitToFamily()">החלף משתמש</button>
   <button (click)="signOut()">יציאה</button>
-  <span *ngIf="this.context.isSignedIn()">שלום {{context.user.name}}</span>
+  
 </div>
 <div>
 
   <app-choose-family-member *ngIf="showChooseFamilyMember()">
 
   </app-choose-family-member>
+  <app-parent-view *ngIf="showParentView()">
+
+  </app-parent-view>

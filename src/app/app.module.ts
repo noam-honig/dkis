@@ -29,6 +29,9 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CtrlGComponent } from './ctrl-g/ctrl-g.component';
 import { MainComponent } from './main/main.component';
 import { ChooseFamilyMemberComponent } from './choose-family-member/choose-family-member.component';
+import { ParentViewComponent } from './parent-view/parent-view.component';
+import { ParentChildViewComponent } from './parent-child-view/parent-child-view.component';
+import { MatTabsModule } from '@angular/material/tabs';
 
 @NgModule({
   declarations: [
@@ -42,7 +45,9 @@ import { ChooseFamilyMemberComponent } from './choose-family-member/choose-famil
     SignInComponent,
     InputAreaComponent,
     CtrlGComponent,
-    ChooseFamilyMemberComponent
+    ChooseFamilyMemberComponent,
+    ParentViewComponent,
+    ParentChildViewComponent
   ],
   imports: [
     BrowserModule,
@@ -60,7 +65,8 @@ import { ChooseFamilyMemberComponent } from './choose-family-member/choose-famil
     MatButtonModule,
     MatIconModule,
     RemultModule,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    MatTabsModule
   ],
   providers: [DialogService, AdminGuard],
   bootstrap: [MainComponent],

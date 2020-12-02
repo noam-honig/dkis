@@ -1,0 +1,7 @@
+<span >שלום הורה {{context.user.name}}</span>
+<mat-tab-group>
+    <mat-tab *ngFor="let m of members" label="{{m.name.value}}">
+        <app-parent-child-view [child]="m"></app-parent-child-view>
+    </mat-tab>
+
+</mat-tab-group>
