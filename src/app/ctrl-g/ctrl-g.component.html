@@ -1,0 +1,4 @@
+<div *ngFor="let t of tables">
+    <h3>{{t.settings.caption}}</h3>
+    <data-grid [settings]="t.settings"></data-grid>
+</div>

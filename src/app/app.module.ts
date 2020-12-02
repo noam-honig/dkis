@@ -26,9 +26,13 @@ import { InputAreaComponent } from './common/input-area/input-area.component';
 import { DialogService } from './common/dialog';
 import { AdminGuard } from './users/roles';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { CtrlGComponent } from './ctrl-g/ctrl-g.component';
+import { MainComponent } from './main/main.component';
+import { ChooseFamilyMemberComponent } from './choose-family-member/choose-family-member.component';
 
 @NgModule({
   declarations: [
+    MainComponent,
     AppComponent,
     UsersComponent,
     UpdateInfoComponent,
@@ -36,7 +40,9 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     HomeComponent,
     YesNoQuestionComponent,
     SignInComponent,
-    InputAreaComponent
+    InputAreaComponent,
+    CtrlGComponent,
+    ChooseFamilyMemberComponent
   ],
   imports: [
     BrowserModule,
@@ -57,7 +63,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     BrowserAnimationsModule
   ],
   providers: [DialogService, AdminGuard],
-  bootstrap: [AppComponent],
+  bootstrap: [MainComponent],
   entryComponents: [YesNoQuestionComponent, SignInComponent, InputAreaComponent]
 })
 export class AppModule { }

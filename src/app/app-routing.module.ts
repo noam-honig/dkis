@@ -9,10 +9,12 @@ import { UpdateInfoComponent } from './users/update-info/update-info.component';
 import { UsersComponent } from './users/users.component';
 import { Roles, AdminGuard } from './users/roles';
 import { ShowDialogOnErrorErrorHandler } from './common/dialog';
+import { CtrlGComponent } from './ctrl-g/ctrl-g.component';
 
 
 const routes: Routes = [
   { path: 'Home', component: HomeComponent },
+  { path: 'ctrlg', component: CtrlGComponent },
   { path: 'User Accounts', component: UsersComponent, canActivate: [AdminGuard] },
 
   { path: 'Register', component: RegisterComponent, canActivate: [NotSignedInGuard] },

@@ -3,8 +3,11 @@ import { Injectable } from '@angular/core';
 
 
 
-export const Roles = { 
-    admin: 'admin'
+export const Roles = {  
+    admin: 'admin',
+    parent:'parent',
+    familyInfo:'familyInfo',
+    child:'child'
 }
 
 
