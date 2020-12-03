@@ -1,9 +1,12 @@
-<div *ngIf="this.account">
-    יתרה: {{this.account.balance.displayValue}}
+<div *ngIf="this.primaryAccount">
+    יתרה: {{this.primaryAccount.balance.displayValue}}
 </div>
 <div>
-    <button (click)="deposit()">הפקדה</button>
-    <button (click)="withdrawal()">משיכה</button>
+    <button (click)="deposit()" *ngIf="isParent()">הפקדה</button>
+    <button (click)="withdrawal()" *ngIf="isParent()">משיכה</button>
+    <button (click)="requestWithdrawal()" *ngIf="isChild()">תנו לי כסף לקנות משהו</button>
+    <button (click)="requestDeposit()" *ngIf="isChild()">קחו כסף לשמור לי</button>
+    <button (click)="addAccount()">פתח קופת חסכון</button>
 </div>
 <mat-tab-group>
     <mat-tab label="בקשות">
@@ -12,7 +15,9 @@
                 <mat-list-item>
                     <!-- <mat-icon mat-list-icon>{{t.type.value.icon}}</mat-icon> -->
                     <div mat-line>{{t.type.value.caption}}, {{t.description.value}} , {{t.amount.displayValue}}
-                        <button (click)="approve(t)">אשר</button> <button (click)="deny(t)">דחה</button>
+                        <span *ngIf="showStatus(t)">{{t.status.displayValue}}</span>
+                        <span *ngIf="!showStatus(t)"><button (click)="approve(t)">אשר</button> <button
+                                (click)="deny(t)">דחה</button></span>
                     </div>
                     <mat-divider></mat-divider>
                 </mat-list-item>
@@ -21,19 +26,13 @@
             </ng-container>
         </mat-nav-list>
     </mat-tab>
-    <mat-tab label="תנועות">
-        <mat-nav-list role="list">
-            <ng-container *ngFor="let t of transactions">
-                <mat-list-item>
-                    <!-- <mat-icon mat-list-icon>{{t.type.value.icon}}</mat-icon> -->
-                    <div mat-line>{{t.type.value.caption}}, {{t.description.value}} , {{t.amount.displayValue}},
-                        {{t.transactionTime.displayValue}}</div>
-                    <mat-divider></mat-divider>
-                </mat-list-item>
-
-
-            </ng-container>
-        </mat-nav-list>
+    <mat-tab label="תנועות" *ngIf="this.primaryAccount">
+        <app-transactions [account]="this.primaryAccount"></app-transactions>
+    </mat-tab>
+    <mat-tab label="{{a.name.value}}" *ngFor="let a of accounts; trackBy:trackAccountBy">
+        יתרה: {{a.balance.displayValue}} / {{a.target.displayValue}}
+        <button (click)="addToSaving(a)">הפקדה</button>
+        <app-transactions [account]="a"></app-transactions>
     </mat-tab>
 
 </mat-tab-group>

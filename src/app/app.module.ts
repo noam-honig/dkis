@@ -33,6 +33,9 @@ import { ParentViewComponent } from './parent-view/parent-view.component';
 import { ParentChildViewComponent } from './parent-child-view/parent-child-view.component';
 import { MatTabsModule } from '@angular/material/tabs';
 import { ChildComponent } from './child/child.component';
+import { ServerEventsService } from './server/server-events-service';
+
+import { TransactionsComponent } from './transactions/transactions.component';
 
 @NgModule({
   declarations: [
@@ -49,7 +52,9 @@ import { ChildComponent } from './child/child.component';
     ChooseFamilyMemberComponent,
     ParentViewComponent,
     ParentChildViewComponent,
-    ChildComponent
+    ChildComponent,
+    
+    TransactionsComponent
   ],
   imports: [
     BrowserModule,
@@ -70,7 +75,7 @@ import { ChildComponent } from './child/child.component';
     BrowserAnimationsModule,
     MatTabsModule
   ],
-  providers: [DialogService, AdminGuard],
+  providers: [DialogService, AdminGuard,ServerEventsService],
   bootstrap: [MainComponent],
   entryComponents: [YesNoQuestionComponent, SignInComponent, InputAreaComponent]
 })

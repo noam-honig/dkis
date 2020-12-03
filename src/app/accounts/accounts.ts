@@ -1,26 +1,32 @@
 import { BoolColumn, Context, DateTimeColumn, EntityClass, IdColumn, IdEntity, NumberColumn, ServerFunction, StringColumn, ValueListColumn } from '@remult/core';
+import { FamilyColumn } from '../families/families';
 import { Roles } from '../users/roles';
 import { AmountColumn } from './Amount-Column';
 
 @EntityClass
 export class Accounts extends IdEntity {
 
-    family = new IdColumn();
+    family = new FamilyColumn();
     familyMember = new IdColumn();
     name = new StringColumn("שם");
     isPrimary = new BoolColumn("ראשי");
     balance = new AmountColumn("יתרה");
+    target = new AmountColumn("סכום מטרה");
     constructor(private context: Context) {
         super({
             caption: 'חשבונות',
-            name: 'accounts'
+            name: 'accounts',
+            allowApiInsert: true,
+            saving: () => {
+                this.family.notifyChange();
+            }
         })
     }
 
 }
 @EntityClass
 export class Transactions extends IdEntity {
-    family = new IdColumn();
+    family = new FamilyColumn();
     familyMember = new IdColumn();
     account = new IdColumn();
     transactionTime = new DateTimeColumn("מתי");
@@ -29,6 +35,8 @@ export class Transactions extends IdEntity {
     amount = new AmountColumn();
     balance = new AmountColumn();
     request = new IdColumn();
+    counterAccount = new IdColumn();
+    counterTransaction = new IdColumn();
     viewed = new BoolColumn();
     constructor(context: Context) {
         super({
@@ -46,8 +54,11 @@ export class Transactions extends IdEntity {
                     this.family.value = acc.family.value;
                     this.balance.value = this.type.value.applyAmountToAccount(this.amount.value, acc);
                     await acc.save();
+
                 }
+                this.family.notifyChange();
             }
+
         })
     }
     @ServerFunction({ allowed: Roles.child })
@@ -61,6 +72,8 @@ export class Transactions extends IdEntity {
 export class TransactionType {
     static deposit = new TransactionType("הפקדה", (amount, acc) => acc.balance.value += amount);
     static withdrawal = new TransactionType("משיכה", (amount, acc) => acc.balance.value -= amount);
+    static receiveFromAccount  = new TransactionType("קבלה מחשבון", (amount, acc) => acc.balance.value += amount);
+    static moveToAccount = new TransactionType("העברה לחשבון", (amount, acc) => acc.balance.value -= amount);
 
     constructor(public caption: string, public applyAmountToAccount: (amount: number, acc: Accounts) => number) {
 
@@ -70,7 +83,7 @@ export class TransactionType {
 
 @EntityClass
 export class Requests extends IdEntity {
-    family = new IdColumn();
+    family = new FamilyColumn();
     familyMember = new IdColumn();
     account = new IdColumn();
     timestamp = new DateTimeColumn("מתי");
@@ -95,6 +108,7 @@ export class Requests extends IdEntity {
                     this.familyMember.value = acc.familyMember.value;
                     this.family.value = acc.family.value;
                 }
+                this.family.notifyChange();
             }
         })
     }

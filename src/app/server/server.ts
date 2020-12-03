@@ -9,11 +9,21 @@ import '../app.module';
 
 import { ServerSignIn } from "../users/server-sign-in";
 import { JWTCookieAuthorizationHelper } from '@remult/server';
+import { ServerEvents } from './server-events';
+import { Families, FamilyTools } from '../families/families';
 
 serverInit().then(async (dataSource) => {
 
     let app = express();
+    let serverEvents = new ServerEvents(app);
     let eb = initExpress(app, dataSource, process.env.DISABLE_HTTPS == "true");
+    let lastMessage = new Date();
+    FamilyTools.SendMessageToBrowsersImplementation = (family, message) => {
+        if (new Date().valueOf() - lastMessage.valueOf() > 1000) {
+            lastMessage = new Date();
+            serverEvents.SendMessage(family, message)
+        }
+    };
     ServerSignIn.helper = new JWTCookieAuthorizationHelper(eb, process.env.TOKEN_SIGN_KEY);
 
     app.use(express.static('dist/dkis'));

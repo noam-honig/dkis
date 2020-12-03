@@ -17,7 +17,7 @@ import { ServerSignIn } from '../users/server-sign-in';
 export class HomeComponent implements OnInit {
 
   constructor(public context: Context, private authService: JwtSessionManager) {
-    console.log(authService);
+    
   }
   async register() {
 

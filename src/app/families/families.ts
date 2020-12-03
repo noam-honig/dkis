@@ -73,3 +73,15 @@ export class FamilyMembers extends IdEntity {
     }
 }
 
+export class FamilyColumn extends IdColumn {
+
+    notifyChange() {
+        setTimeout(() => {
+            FamilyTools.SendMessageToBrowsersImplementation(this.value, "message");
+        }, 1000);
+    }
+}
+
+export const FamilyTools = {
+    SendMessageToBrowsersImplementation: (familyId: string, message: string) => { }
+}
