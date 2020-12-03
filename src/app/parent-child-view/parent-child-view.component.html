@@ -26,7 +26,7 @@
             <ng-container *ngFor="let t of transactions">
                 <mat-list-item>
                     <!-- <mat-icon mat-list-icon>{{t.type.value.icon}}</mat-icon> -->
-                    <div mat-line>{{t.type.value.caption}} , {{t.amount.displayValue}},
+                    <div mat-line>{{t.type.value.caption}}, {{t.description.value}} , {{t.amount.displayValue}},
                         {{t.transactionTime.displayValue}}</div>
                     <mat-divider></mat-divider>
                 </mat-list-item>

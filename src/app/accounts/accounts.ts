@@ -28,6 +28,8 @@ export class Transactions extends IdEntity {
     description = new StringColumn('תאור');
     amount = new AmountColumn();
     balance = new AmountColumn();
+    request = new IdColumn();
+    viewed = new BoolColumn();
     constructor(context: Context) {
         super({
             caption: 'תנועות',
@@ -37,7 +39,7 @@ export class Transactions extends IdEntity {
             allowApiInsert: Roles.parent,
             defaultOrderBy: () => [{ column: this.transactionTime, descending: true }],
             saving: async () => {
-                if (context.onServer) {
+                if (context.onServer && this.isNew()) {
                     this.transactionTime.value = new Date();
                     let acc = await context.for(Accounts).findId(this.account);
                     this.familyMember.value = acc.familyMember.value;
@@ -47,6 +49,12 @@ export class Transactions extends IdEntity {
                 }
             }
         })
+    }
+    @ServerFunction({ allowed: Roles.child })
+    static async setViewed(transactionId: String, context?: Context) {
+        let t = await context.for(Transactions).findId(transactionId);
+        t.viewed.value = true;
+        await t.save();
     }
 }
 
@@ -102,6 +110,7 @@ export class Requests extends IdEntity {
             t.type.value = r.type.value;
             t.amount.value = r.amount.value;
             t.description.value = r.description.value;
+            t.request.value = r.id.value;
             await t.save();
         }
         await r.save();

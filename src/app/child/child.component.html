@@ -4,3 +4,37 @@
 </div>
 
 <button (click)="requestWithdrawal()">תנו לי כסף לקנות משהו</button>
+<button (click)="requestDeposit()">קחו כסף לשמור לי</button>
+<mat-tab-group>
+    <mat-tab label="תנועות">
+        <mat-nav-list role="list">
+            <ng-container *ngFor="let t of transactions">
+                <mat-list-item>
+                    <!-- <mat-icon mat-list-icon>{{t.type.value.icon}}</mat-icon> -->
+                    <div mat-line>{{t.type.value.caption}}, {{t.description.value}} , {{t.amount.displayValue}},
+                        {{t.transactionTime.displayValue}}</div>
+                    <mat-divider></mat-divider>
+                </mat-list-item>
+
+
+            </ng-container>
+        </mat-nav-list>
+    </mat-tab>
+    <mat-tab label="בקשות">
+        <mat-nav-list role="list">
+            <ng-container *ngFor="let t of requests">
+                <mat-list-item>
+                    <!-- <mat-icon mat-list-icon>{{t.type.value.icon}}</mat-icon> -->
+                    <div mat-line>{{t.type.value.caption}}, {{t.description.value}} , {{t.amount.displayValue}}
+                        , {{t.status.displayValue}}
+                    </div>
+                    <mat-divider></mat-divider>
+                </mat-list-item>
+
+
+            </ng-container>
+        </mat-nav-list>
+    </mat-tab>
+   
+
+</mat-tab-group>
