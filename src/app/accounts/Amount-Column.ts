@@ -10,4 +10,4 @@ export class AmountColumn extends NumberColumn {
     get displayValue() {
         return "₪ " + this.value.toLocaleString();
     }
-}
+} 

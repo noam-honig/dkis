@@ -9,8 +9,10 @@ import '../app.module';
 
 
 import { Users } from '../users/users';
-import { SqlDatabase } from '@remult/core';
+import { Entity, EntityClass, IdEntity, NumberColumn, ServerContext, SqlDatabase } from '@remult/core';
 import { ConnectionOptions } from 'tls';
+import { UpperCasePipe } from '@angular/common';
+import { Accounts, Transactions } from '../accounts/accounts';
 
 
 export async function serverInit() {
@@ -39,7 +41,53 @@ export async function serverInit() {
         verify: (p, h) => passwordHash.verify(p, h)
     }
     let result = new SqlDatabase(new PostgresDataProvider(pool));
+
     await new PostgresSchemaBuilder(result).verifyStructureOfAllEntities();
+    let c = new ServerContext(result);
+
+    let settings = await c.for(VersionStorage).findFirst();
+    if (!settings) {
+        settings = c.for(VersionStorage).create();
+        settings.version.value = 0;
+    }
+
+    let version = async (ver: number, what: () => Promise<void>) => {
+        if (settings.version.value < ver) {
+            try {
+                console.log('start version ', ver);
+                await what();
+                console.log('end version ', ver);
+            } catch (err) {
+                console.error("failed for version ", ver, err);
+                throw err;
+            }
+            settings.version.value = ver;
+            await settings.save();
+        }
+    }
+    version(1, async () => {
+        for (const acc of await c.for(Accounts).find()) {
+            acc.balance.value = 0;
+            for (const t of await c.for(Transactions).find({ where: t => t.account.isEqualTo(acc.id.value), orderBy: t => t.transactionTime })) {
+                t.balance.value = t.type.value.applyAmountToAccount(t.amount.value, acc);
+                await t.save();
+            }
+        }
+
+
+    });
+
     return result;
 
+}
+
+@EntityClass
+class VersionStorage extends IdEntity {
+    version = new NumberColumn();
+    constructor() {
+        super({
+            allowApiRead: false,
+            name: 'version'
+        })
+    }
 }

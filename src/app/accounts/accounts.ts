@@ -52,21 +52,7 @@ export class Transactions extends IdEntity {
                     let acc = await context.for(Accounts).findId(this.account);
                     this.familyMember.value = acc.familyMember.value;
                     this.family.value = acc.family.value;
-                    console.log({
-                        b: acc.balance.value,
-                        bRaw: acc.balance.rawValue,
-                        a: this.amount.value,
-                        aRaw: this.amount.rawValue,
-                        before:true
-                    });
                     this.balance.value = this.type.value.applyAmountToAccount(this.amount.value, acc);
-                    console.log({
-                        b: acc.balance.value,
-                        bRaw: acc.balance.rawValue,
-                        a: this.amount.value,
-                        aRaw: this.amount.rawValue,
-                        after:true
-                    });
                     await acc.save();
 
                 }
