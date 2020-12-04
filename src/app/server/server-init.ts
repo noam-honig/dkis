@@ -65,13 +65,14 @@ export async function serverInit() {
             await settings.save();
         }
     }
-    version(1, async () => {
+    version(2, async () => {
         for (const acc of await c.for(Accounts).find()) {
             acc.balance.value = 0;
             for (const t of await c.for(Transactions).find({ where: t => t.account.isEqualTo(acc.id.value), orderBy: t => t.transactionTime })) {
                 t.balance.value = t.type.value.applyAmountToAccount(t.amount.value, acc);
                 await t.save();
             }
+            await acc.save();
         }
 
 
