@@ -28,10 +28,7 @@ export class CreateFamilyController {
         let child = f.createMember(this.childName.value);
         child.name.value = this.childName.value;
         await child.save();
-        let account = child.createAccount();
-        account.name.value = 'ראשי';
-        account.isPrimary.value = true;
-        await account.save();
+        
         return ServerSignIn.helper.createSecuredTokenBasedOn(await p.createUserInfo());
     }
 }

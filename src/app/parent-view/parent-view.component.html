@@ -1,4 +1,7 @@
-<span >שלום הורה {{context.user.name}}</span>
+<span>שלום הורה {{context.user.name}}</span>
+<div>
+    <button (click)="addMember()">הוסף בן משפחה</button>
+</div>
 <mat-tab-group>
     <mat-tab *ngFor="let m of members" label="{{m.name.value}}">
         <app-parent-child-view [childId]="m.id"></app-parent-child-view>

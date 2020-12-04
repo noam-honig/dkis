@@ -1,3 +1,4 @@
+import { async } from '@angular/core/testing';
 import { BoolColumn, Context, DateTimeColumn, EntityClass, IdColumn, IdEntity, NumberColumn, StringColumn, UserInfo, ValueListColumn } from '@remult/core';
 import { Accounts } from '../accounts/accounts';
 import { Roles } from '../users/roles';
@@ -44,6 +45,7 @@ export class FamilyMembers extends IdEntity {
         super({
             caption: 'חברי משפחה',
             name: 'familyMembers',
+            allowApiInsert: Roles.parent,
             defaultOrderBy: () =>
                 [{ column: this.isParent, descending: true }, this.name],
 
@@ -51,7 +53,19 @@ export class FamilyMembers extends IdEntity {
             fixedWhereFilter: () => {
                 if (this.context.isSignedIn())
                     return this.family.isEqualTo(getInfo(this.context).familyId);
+            },
+            saving: async () => {
+                if (this.isNew() && context.onServer) {
+                    if (!this.isParent.value) {
+                        let account = this.createAccount();
+                        account.name.value = 'ראשי';
+                        account.isPrimary.value = true;
+                        await account.save();
+                    }
+
+                }
             }
+
         })
     }
     async createUserInfo(): Promise<CurrentUserInfo> {
