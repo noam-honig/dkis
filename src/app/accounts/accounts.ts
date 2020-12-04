@@ -52,7 +52,21 @@ export class Transactions extends IdEntity {
                     let acc = await context.for(Accounts).findId(this.account);
                     this.familyMember.value = acc.familyMember.value;
                     this.family.value = acc.family.value;
+                    console.log({
+                        b: acc.balance.value,
+                        bRaw: acc.balance.rawValue,
+                        a: this.amount.value,
+                        aRaw: this.amount.rawValue,
+                        before:true
+                    });
                     this.balance.value = this.type.value.applyAmountToAccount(this.amount.value, acc);
+                    console.log({
+                        b: acc.balance.value,
+                        bRaw: acc.balance.rawValue,
+                        a: this.amount.value,
+                        aRaw: this.amount.rawValue,
+                        after:true
+                    });
                     await acc.save();
 
                 }
@@ -72,7 +86,7 @@ export class Transactions extends IdEntity {
 export class TransactionType {
     static deposit = new TransactionType("הפקדה", (amount, acc) => acc.balance.value += amount);
     static withdrawal = new TransactionType("משיכה", (amount, acc) => acc.balance.value -= amount);
-    static receiveFromAccount  = new TransactionType("קבלה מחשבון", (amount, acc) => acc.balance.value += amount);
+    static receiveFromAccount = new TransactionType("קבלה מחשבון", (amount, acc) => acc.balance.value += amount);
     static moveToAccount = new TransactionType("העברה לחשבון", (amount, acc) => acc.balance.value -= amount);
 
     constructor(public caption: string, public applyAmountToAccount: (amount: number, acc: Accounts) => number) {
