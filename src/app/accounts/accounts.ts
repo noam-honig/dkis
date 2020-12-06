@@ -1,8 +1,10 @@
-import { BoolColumn, Context, DateTimeColumn, EntityClass, IdColumn, IdEntity, NumberColumn, ServerFunction, StringColumn, ValueListColumn } from '@remult/core';
+import { BoolColumn, Context, DateTimeColumn, EntityClass, IdColumn, IdEntity, NumberColumn, ServerFunction, SqlDatabase, StringColumn, ValueListColumn } from '@remult/core';
 import { FamilyColumn } from '../families/families';
 import { Roles } from '../users/roles';
 import { AmountColumn } from './Amount-Column';
 import * as moment from 'moment';
+import { SelectValueDialogComponent } from '@remult/angular';
+import { SqlBuilder } from '../common/sql-builder';
 
 @EntityClass
 export class Accounts extends IdEntity {
@@ -25,7 +27,7 @@ export class Accounts extends IdEntity {
     }
     getTabTitle() {
         if (this.target.value > 0)
-            return this.name.value + " " + (this.balance.value*100 / this.target.value).toFixed(0) + "%";
+            return this.name.value + " " + (this.balance.value * 100 / this.target.value).toFixed(0) + "%";
         return this.name.value;
     }
 
@@ -37,7 +39,20 @@ export class Transactions extends IdEntity {
     account = new IdColumn();
     transactionTime = new DateTimeColumn("מתי");
     type = new ValueListColumn(TransactionType);
-    description = new StringColumn('תאור');
+    description = new StringColumn('תאור',{
+        dataControlSettings: () => ({
+            click: async () => {
+                let values = await Transactions.getTransferOptions(this.account.value, this.type.value == TransactionType.withdrawal);
+                this.context.openDialog(SelectValueDialogComponent, x => x.args({
+                    title: 'בחרו',
+                    values: values.map(x => ({ caption: x })),
+                    onSelect: selected => {
+                        this.description.value = selected.caption
+                    }
+                }));
+            }
+        })
+    });
     amount = new AmountColumn();
     balance = new AmountColumn();
     request = new IdColumn();
@@ -47,7 +62,32 @@ export class Transactions extends IdEntity {
     when() {
         return moment(this.transactionTime.value).locale('he').fromNow();
     }
-    constructor(context: Context) {
+    @ServerFunction({
+        allowed: [Roles.parent, Roles.child]
+    })
+    static async getTransferOptions(accountId: string, withdrawal: boolean, context?: Context, db?: SqlDatabase) {
+        let type = withdrawal ? TransactionType.withdrawal : TransactionType.deposit;
+        let t = context.for(Transactions).create();
+        let sql = new SqlBuilder();
+        let r = await db.execute(sql.query({
+            select: () => [sql.build('distinct ', t.description, ' as option')],
+            from: t,
+            where: () => [t.type.isEqualTo(type).and(t.account.isEqualTo(accountId))]
+        }));
+        let options = r.rows.map(x => x.option);
+        if (options.length == 0) {
+            if (type == TransactionType.withdrawal)
+                options.push(['vbucks']);
+            else {
+                options.push(['דמי חנוכה', 'מתנה מסבא וסבתא']);
+            }
+        }
+
+        return options.filter(x => x);
+
+
+    }
+    constructor(private context: Context) {
         super({
             caption: 'תנועות',
             name: 'transactions',
@@ -79,12 +119,12 @@ export class Transactions extends IdEntity {
 }
 
 export class TransactionType {
-    static deposit = new TransactionType("הפקדה",'black', (amount, acc) => acc.balance.value += amount);
-    static withdrawal = new TransactionType("משיכה",'red', (amount, acc) => acc.balance.value -= amount);
-    static receiveFromAccount = new TransactionType("קבלה מחשבון",'black', (amount, acc) => acc.balance.value += amount);
-    static moveToAccount = new TransactionType("העברה לחשבון",'green', (amount, acc) => acc.balance.value -= amount);
+    static deposit = new TransactionType("הפקדה", 'black', (amount, acc) => acc.balance.value += amount);
+    static withdrawal = new TransactionType("משיכה", 'red', (amount, acc) => acc.balance.value -= amount);
+    static receiveFromAccount = new TransactionType("קבלה מחשבון", 'black', (amount, acc) => acc.balance.value += amount);
+    static moveToAccount = new TransactionType("העברה לחשבון", 'green', (amount, acc) => acc.balance.value -= amount);
 
-    constructor(public caption: string,public color:string, public applyAmountToAccount: (amount: number, acc: Accounts) => number) {
+    constructor(public caption: string, public color: string, public applyAmountToAccount: (amount: number, acc: Accounts) => number) {
 
     }
 }
@@ -98,10 +138,23 @@ export class Requests extends IdEntity {
     timestamp = new DateTimeColumn("מתי");
     type = new ValueListColumn(TransactionType);
     status = new ValueListColumn(RequestStatus, { defaultValue: RequestStatus.pending });
-    description = new StringColumn('תאור');
+    description = new StringColumn('תאור', {
+        dataControlSettings: () => ({
+            click: async () => {
+                let values = await Transactions.getTransferOptions(this.account.value, this.type.value == TransactionType.withdrawal);
+                this.context.openDialog(SelectValueDialogComponent, x => x.args({
+                    title: 'בחרו',
+                    values: values.map(x => ({ caption: x })),
+                    onSelect: selected => {
+                        this.description.value = selected.caption
+                    }
+                }));
+            }
+        })
+    });
     amount = new AmountColumn();
 
-    constructor(context: Context) {
+    constructor(private context: Context) {
         super({
             caption: 'בקשות',
             name: 'requests',
