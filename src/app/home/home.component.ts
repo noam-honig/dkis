@@ -30,7 +30,8 @@ export class HomeComponent implements OnInit {
       columnSettings: () => getColumnsFromObject(createFamily),
       ok: async () => {
         let r = await createFamily.createAccount();
-        this.authService.setToken(r, true);
+        this.authService.setToken(r.parent, true);
+        localStorage.setItem('token', r.family);
       }
     });
 
@@ -48,7 +49,7 @@ export class HomeComponent implements OnInit {
 
   signOut() {
     this.authService.signout();
-    localStorage.setItem('token',undefined);
+    localStorage.setItem('token', undefined);
   }
   async signIn() {
     let signIn = new FamilySignInController(this.context);
@@ -58,7 +59,7 @@ export class HomeComponent implements OnInit {
       title: 'כניסת משפחה',
       ok: async () => {
         let token = await signIn.signIn();
-        localStorage.setItem('token',token);
+        localStorage.setItem('token', token);
         this.authService.setToken(token);
       }
     })
