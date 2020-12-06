@@ -16,6 +16,10 @@
         החלף
         משתמש
       </button>
+      <button mat-menu-item (click)="resetPassword()" *ngIf="showParentView()">
+        <mat-icon>remove_from_queue</mat-icon>
+        אתחל סיסמה לבן משפחה
+      </button>
       <button mat-menu-item (click)="addMember()" *ngIf="showParentView()">
         <mat-icon>person_add_alt_1</mat-icon>
         הוסף בן משפחה

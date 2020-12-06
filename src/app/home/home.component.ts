@@ -1,10 +1,10 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { JwtSessionManager } from '@remult/angular';
+import { JwtSessionManager, SelectValueDialogComponent } from '@remult/angular';
 import { Context, getColumnsFromObject, ServerFunction } from '@remult/core';
 import { InputAreaComponent } from '../common/input-area/input-area.component';
 import { CreateFamilyController } from '../families/create-family-controller';
 import { getInfo } from '../families/current-user-info';
-import { Families, PasswordColumn } from '../families/families';
+import { Families, FamilyMembers, PasswordColumn } from '../families/families';
 import { FamilySignInController } from '../families/family-sign-in-controller';
 import { UpdatePasswordController } from '../families/update-password-controller';
 import { ParentViewComponent } from '../parent-view/parent-view.component';
@@ -75,6 +75,23 @@ export class HomeComponent implements OnInit {
         this.parentView.loadMembers();
       }
     })
+  }
+  async resetPassword() {
+    let members = await this.context.for(FamilyMembers).find({ where: m => m.family.isEqualTo(getInfo(this.context).familyId) });
+    this.context.openDialog(SelectValueDialogComponent, x => x.args({
+      values: members.map(x => ({ caption: x.name.value, item: x })),
+      title: 'למי לאתחל סיסמה?',
+      onSelect: async (m) => {
+        await HomeComponent.resetPassword(m.item.id.value);
+      }
+    }));
+  }
+  @ServerFunction({ allowed: Roles.admin })
+  static async resetPassword(memberId: string, context?: Context) {
+    let m = await context.for(FamilyMembers).findFirst(m => m.id.isEqualTo(memberId).and(m.family.isEqualTo(getInfo(context).familyId)));
+    m.password.value = '';
+    await m.save;
+
   }
   @ViewChild(ParentViewComponent, { static: false }) parentView;
   getTitle() {
