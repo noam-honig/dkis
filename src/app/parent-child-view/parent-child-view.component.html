@@ -1,5 +1,5 @@
-<div *ngIf="this.primaryAccount" class="mat-display-1 account-title">
-    יתרה: <div class="amount"> {{this.primaryAccount.balance.displayValue}}</div>
+<div  class="mat-display-1 account-title">
+    יתרה: <div class="amount" *ngIf="this.primaryAccount"> {{this.primaryAccount.balance.displayValue}}</div>
 
 </div>
 <div class="account-buttons">
@@ -7,7 +7,7 @@
     <button mat-raised-button color="primary" (click)="withdrawal()" *ngIf="isParent()">משיכה</button>
     <button mat-raised-button color="primary" (click)="requestWithdrawal()" *ngIf="isChild()">תנו לי כסף לקנות
         משהו</button>
-    <button mat-raised-button color="primary" (click)="requestDeposit()" *ngIf="isChild()">קחו כסף לשמור לי</button>
+    <button mat-raised-button color="primary" (click)="requestDeposit()" *ngIf="isChild()">תוסיפו לי כסף לחשבון</button>
 </div>
 <div class="account-buttons">
     <button mat-raised-button color="primary" (click)="addAccount()">פתח קופת חסכון</button>
