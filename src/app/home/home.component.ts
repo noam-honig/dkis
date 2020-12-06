@@ -98,7 +98,7 @@ export class HomeComponent implements OnInit {
       }
     }));
   }
-  @ServerFunction({ allowed: Roles.admin })
+  @ServerFunction({ allowed: Roles.parent })
   static async resetPassword(memberId: string, context?: Context) {
     let m = await context.for(FamilyMembers).findFirst(m => m.id.isEqualTo(memberId).and(m.family.isEqualTo(getInfo(context).familyId)));
     m.password.value = '';
