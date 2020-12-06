@@ -4,8 +4,9 @@ import { Context, getColumnsFromObject, ServerFunction } from '@remult/core';
 import { InputAreaComponent } from '../common/input-area/input-area.component';
 import { CreateFamilyController } from '../families/create-family-controller';
 import { getInfo } from '../families/current-user-info';
-import { Families } from '../families/families';
+import { Families, PasswordColumn } from '../families/families';
 import { FamilySignInController } from '../families/family-sign-in-controller';
+import { UpdatePasswordController } from '../families/update-password-controller';
 import { ParentViewComponent } from '../parent-view/parent-view.component';
 import { Roles } from '../users/roles';
 import { ServerSignIn } from '../users/server-sign-in';
@@ -34,16 +35,31 @@ export class HomeComponent implements OnInit {
     });
 
   }
+  async updatePassword() {
+    let c = new UpdatePasswordController(this.context);
+    await this.context.openDialog(InputAreaComponent, x => x.args = {
+      object: c,
+      title: 'עדכון סיסמה',
+      ok: async () => {
+        await c.updatePassword();
+      }
+    })
+  }
+
   signOut() {
     this.authService.signout();
+    localStorage.setItem('token',undefined);
   }
   async signIn() {
     let signIn = new FamilySignInController(this.context);
     await this.context.openDialog(InputAreaComponent, x => x.args = {
       object: signIn,
+      helpText: 'אנא הקלידו את המייל של אחד ההורים והסיסמה',
       title: 'כניסת משפחה',
       ok: async () => {
-        this.authService.setToken(await signIn.signIn());
+        let token = await signIn.signIn();
+        localStorage.setItem('token',token);
+        this.authService.setToken(token);
       }
     })
   }

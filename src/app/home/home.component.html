@@ -7,7 +7,10 @@
       <mat-icon>menu</mat-icon>
     </button>
     <mat-menu #menu="matMenu">
-
+      <button mat-menu-item (click)="updatePassword()" *ngIf="showParentView()||showChildView()">
+        <mat-icon>vpn_key</mat-icon>
+        עדכן סיסמה
+      </button>
       <button mat-menu-item (click)="exitToFamily()" *ngIf="context.isSignedIn()&&!showChooseFamilyMember()">
         <mat-icon>supervisor_account</mat-icon>
         החלף
@@ -17,6 +20,7 @@
         <mat-icon>person_add_alt_1</mat-icon>
         הוסף בן משפחה
       </button>
+      
       <a href="mailto:noam.honig@gmail.com" mat-menu-item>
         <mat-icon>report_problem</mat-icon>
         דיווח תקלה/בקשה
@@ -32,12 +36,22 @@
 </div>
 
 <div>
-  <button (click)="register()" *ngIf="!context.isSignedIn()">הרשמה</button>
-  <button (click)="signIn()" *ngIf="!context.isSignedIn()">כניסה </button>
+
 
 
 </div>
+<div *ngIf="!showChildView()&&!showParentView()&&!showChooseFamilyMember()">
+  <h2>דמי כיס</h2>
+  <p>ברוכים הבאים לאפליקצית דמי כיס</p>
+  <p>אפליקציית דמי כיס עוזרת לעקוב אחרי דמי הכיס של הילדים, ועוזרת לילדים ללמוד התנהלות כלכלית</p>
+  <h3>משתמשים חדשים</h3>
+  <button mat-raised-button (click)="register()" *ngIf="!context.isSignedIn()">הרשמה</button>
+  <h3>משתמשים קיימים</h3>
+  <button mat-raised-button (click)="signIn()" *ngIf="!context.isSignedIn()">כניסה </button>
+
+</div>
 <div>
+
 
   <app-choose-family-member *ngIf="showChooseFamilyMember()">
 
@@ -48,3 +62,4 @@
   <app-child *ngIf="showChildView()">
 
   </app-child>
+</div>

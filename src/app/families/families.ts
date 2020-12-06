@@ -8,6 +8,7 @@ import { CurrentUserInfo, getInfo } from './current-user-info';
 export class Families extends IdEntity {
     name = new StringColumn("שם");
     createDate = new DateTimeColumn();
+    
     constructor(private context: Context) {
         super({
             caption: 'משפחות',
@@ -40,7 +41,7 @@ export class FamilyMembers extends IdEntity {
     isParent = new BoolColumn("הורה מנהל?");
     name = new StringColumn("שם");
     email = new StringColumn('דוא"ל');
-    password = new StringColumn();
+    password = new PasswordColumn();
     constructor(private context: Context) {
         super({
             caption: 'חברי משפחה',
@@ -98,4 +99,13 @@ export class FamilyColumn extends IdColumn {
 
 export const FamilyTools = {
     SendMessageToBrowsersImplementation: (familyId: string, message: string) => { }
+}
+export class PasswordColumn extends StringColumn {
+    constructor(caption = 'סיסמה') {
+        super({
+            caption,
+            dataControlSettings: () => ({ inputType: 'password' }),
+            includeInApi: false
+        })
+    }
 }

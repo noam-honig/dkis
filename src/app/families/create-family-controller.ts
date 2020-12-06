@@ -1,6 +1,6 @@
 import { Context, ServerController, ServerFunction, ServerMethod, StringColumn } from '@remult/core';
 import { ServerSignIn } from '../users/server-sign-in';
-import { Families } from './families';
+import { Families, PasswordColumn } from './families';
 
 @ServerController({
     key: 'createFamily',
@@ -10,8 +10,11 @@ import { Families } from './families';
 export class CreateFamilyController {
     familyName = new StringColumn("שם משפחה");
     parentName = new StringColumn("שם ההורה");
-    email = new StringColumn('דוא"ל');
     childName = new StringColumn("שם הילד");
+    email = new StringColumn('דוא"ל');
+    password = new PasswordColumn();
+    confirmPassword = new PasswordColumn('אשר סיסמה');
+    
     constructor(private context: Context) {
 
     }

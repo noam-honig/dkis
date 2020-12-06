@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { JwtSessionManager } from '@remult/angular';
 import { Context, ServerFunction } from '@remult/core';
+import { InputAreaComponent } from '../common/input-area/input-area.component';
 import { getInfo } from '../families/current-user-info';
-import { FamilyMembers } from '../families/families';
+import { FamilyMembers, PasswordColumn } from '../families/families';
 import { Roles } from '../users/roles';
 import { ServerSignIn } from '../users/server-sign-in';
+import { Users } from '../users/users';
 
 @Component({
   selector: 'app-choose-family-member',
@@ -22,10 +24,22 @@ export class ChooseFamilyMemberComponent implements OnInit {
     return getInfo(this.context).familyName;
   }
   async signInAsMember(m: FamilyMembers) {
-    this.authService.setToken(await ChooseFamilyMemberComponent.memberSignIn(m.id.value));
+    let password = new PasswordColumn();
+    await this.context.openDialog(InputAreaComponent, x => x.args = {
+      title: 'סיסמה?',
+      helpText:'אם אתם לא מצליחים להכנס, בקשו מאחד ההורים לאתחל לכם סיסמה. אם גם הם לא מצליחים צרו אתנו קשר ונעזור',
+      columnSettings:()=>[password],
+      ok: async () => {
+        this.authService.setToken( await ChooseFamilyMemberComponent.memberSignIn(m.id.value, password.value));
+      }
+    })
+
   }
   @ServerFunction({ allowed: Roles.familyInfo })
-  static async memberSignIn(memberId: string, context?: Context) {
-    return ServerSignIn.helper.createSecuredTokenBasedOn(await (await context.for(FamilyMembers).findId(memberId)).createUserInfo());
+  static async memberSignIn(memberId: string, password: string, context?: Context) {
+    let m = await context.for(FamilyMembers).findId(memberId);
+    if (m.password.value && !Users.passwordHelper.verify(password, m.password.value))
+      throw Error("סיסמה שגויה");
+    return ServerSignIn.helper.createSecuredTokenBasedOn(await m.createUserInfo());
   }
 }
