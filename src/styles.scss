@@ -1,4 +1,43 @@
 /* You can add global styles to this file, and also import other style files */
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html,
+body {
+    height: 100%;
+}
+body {
+    margin: 0;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+input[type="email"] {
+    direction: ltr;
+}
+.account-title {
+    background-color: #3f51b5;
+    color: white;
+    padding-top: 50px;
+    padding-bottom: 50px;
+
+    text-align: center;
+    margin-top: 3px;
+    margin-bottom: 3px;
+    margin-left:10px;
+    margin-right:10px;
+    border-radius: 10px;
+}
+.account-buttons {
+    display: flex;
+    place-content: space-evenly;
+    margin-top: 10px;
+}
+.flex-spread {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width:100%;
+}
+
+.amount{
+    display:inline-block;
+    direction: ltr;
+}

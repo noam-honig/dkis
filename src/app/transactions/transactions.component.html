@@ -1,10 +1,20 @@
 <mat-nav-list role="list">
     <ng-container *ngFor="let t of transactions">
         <mat-list-item>
-            <!-- <mat-icon mat-list-icon>{{t.type.value.icon}}</mat-icon> -->
-            <div mat-line>{{t.type.value.caption}}, {{t.description.value}} , {{t.amount.displayValue}},
-                {{t.transactionTime.displayValue}}</div>
-            <mat-divider></mat-divider>
+            <div class="flex-spread">
+                <div>
+                    <!-- <mat-icon mat-list-icon>{{t.type.value.icon}}</mat-icon> -->
+                    <div mat-line>{{t.type.value.caption}}, {{t.description.value}}
+                    </div>
+                    <div>
+                        {{t.when()}}
+                    </div>
+                </div>
+                <div [style.color]="t.type.value.color">
+                    {{t.amount.displayValue}}
+                </div>
+                <mat-divider></mat-divider>
+            </div>
         </mat-list-item>
 
 

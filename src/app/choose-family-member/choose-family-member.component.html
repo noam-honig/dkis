@@ -1,9 +1,9 @@
-<h3>משפחת {{getFamilyName()}}:</h3>
+
 <mat-divider></mat-divider>
 <mat-nav-list role="list">
     <ng-container *ngFor="let member of members">
       <mat-list-item (click)="signInAsMember(member)">
-        <mat-icon mat-list-icon>account_circle</mat-icon>
+        <mat-icon mat-list-icon>{{member.isParent.value? 'account_circle':'face'}}</mat-icon>
         <div mat-line>{{member.name.value}}</div>
         <mat-divider></mat-divider>
       </mat-list-item>

@@ -2,6 +2,7 @@ import { BoolColumn, Context, DateTimeColumn, EntityClass, IdColumn, IdEntity, N
 import { FamilyColumn } from '../families/families';
 import { Roles } from '../users/roles';
 import { AmountColumn } from './Amount-Column';
+import * as moment from 'moment';
 
 @EntityClass
 export class Accounts extends IdEntity {
@@ -22,6 +23,11 @@ export class Accounts extends IdEntity {
             }
         })
     }
+    getTabTitle() {
+        if (this.target.value > 0)
+            return this.name.value + " " + (this.balance.value*100 / this.target.value).toFixed(0) + "%";
+        return this.name.value;
+    }
 
 }
 @EntityClass
@@ -38,6 +44,9 @@ export class Transactions extends IdEntity {
     counterAccount = new IdColumn();
     counterTransaction = new IdColumn();
     viewed = new BoolColumn();
+    when() {
+        return moment(this.transactionTime.value).locale('he').fromNow();
+    }
     constructor(context: Context) {
         super({
             caption: 'תנועות',
@@ -70,12 +79,12 @@ export class Transactions extends IdEntity {
 }
 
 export class TransactionType {
-    static deposit = new TransactionType("הפקדה", (amount, acc) => acc.balance.value += amount);
-    static withdrawal = new TransactionType("משיכה", (amount, acc) => acc.balance.value -= amount);
-    static receiveFromAccount = new TransactionType("קבלה מחשבון", (amount, acc) => acc.balance.value += amount);
-    static moveToAccount = new TransactionType("העברה לחשבון", (amount, acc) => acc.balance.value -= amount);
+    static deposit = new TransactionType("הפקדה",'black', (amount, acc) => acc.balance.value += amount);
+    static withdrawal = new TransactionType("משיכה",'red', (amount, acc) => acc.balance.value -= amount);
+    static receiveFromAccount = new TransactionType("קבלה מחשבון",'black', (amount, acc) => acc.balance.value += amount);
+    static moveToAccount = new TransactionType("העברה לחשבון",'green', (amount, acc) => acc.balance.value -= amount);
 
-    constructor(public caption: string, public applyAmountToAccount: (amount: number, acc: Accounts) => number) {
+    constructor(public caption: string,public color:string, public applyAmountToAccount: (amount: number, acc: Accounts) => number) {
 
     }
 }
@@ -118,7 +127,8 @@ export class Requests extends IdEntity {
         if (r.status.value != RequestStatus.pending)
             throw new Error('לא ניתן לעדכן סטטוס לבקשה זו');
         r.status.value = approve ? RequestStatus.approved : RequestStatus.denied;
-        if (r.status.value = RequestStatus.approved) {
+        console.log(r.status.displayValue);
+        if (r.status.value == RequestStatus.approved) {
             let t = context.for(Transactions).create();
             t.account.value = r.account.value;
             t.type.value = r.type.value;

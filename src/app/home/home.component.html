@@ -1,9 +1,41 @@
+<div *ngIf="context.isSignedIn()" class="flex-spread">
+  <div>
+    <H3 style="padding-right:5px" class="mat-headline">{{getTitle()}}</H3>
+  </div>
+  <div>
+    <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <mat-menu #menu="matMenu">
+
+      <button mat-menu-item (click)="exitToFamily()" *ngIf="context.isSignedIn()&&!showChooseFamilyMember()">
+        <mat-icon>supervisor_account</mat-icon>
+        החלף
+        משתמש
+      </button>
+      <button mat-menu-item (click)="addMember()" *ngIf="showParentView()">
+        <mat-icon>person_add_alt_1</mat-icon>
+        הוסף בן משפחה
+      </button>
+      <a href="mailto:noam.honig@gmail.com" mat-menu-item>
+        <mat-icon>report_problem</mat-icon>
+        דיווח תקלה/בקשה
+      </a>
+      <button mat-menu-item (click)="signOut()" *ngIf="context.isSignedIn()">
+        <mat-icon>mobile_off</mat-icon>
+        יציאה
+      </button>
+
+    </mat-menu>
+  </div>
+
+</div>
+
 <div>
-  <button (click)="register()">הרשמה</button>
-  <button (click)="signIn()">כניסה </button>
-  <button (click)="exitToFamily()">החלף משתמש</button>
-  <button (click)="signOut()">יציאה</button>
-  
+  <button (click)="register()" *ngIf="!context.isSignedIn()">הרשמה</button>
+  <button (click)="signIn()" *ngIf="!context.isSignedIn()">כניסה </button>
+
+
 </div>
 <div>
 

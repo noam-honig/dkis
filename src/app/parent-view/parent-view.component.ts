@@ -15,18 +15,7 @@ export class ParentViewComponent implements OnInit {
 
   }
   members: FamilyMembers[] = [];
-  async addMember() {
-    let f = await this.context.for(Families).findId(getInfo(this.context).familyId);
-    let member = f.createMember('');
-    this.context.openDialog(InputAreaComponent, x => x.args = {
-      title: 'הוסף בן משפחה',
-      columnSettings: () => [member.name, member.isParent],
-      ok: async () => {
-        await member.save();
-        this.loadMembers();
-      }
-    })
-  }
+  
 
 
 

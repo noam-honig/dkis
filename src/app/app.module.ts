@@ -36,6 +36,8 @@ import { ChildComponent } from './child/child.component';
 import { ServerEventsService } from './server/server-events-service';
 
 import { TransactionsComponent } from './transactions/transactions.component';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatExpansionModule } from '@angular/material';
 
 @NgModule({
   declarations: [
@@ -57,7 +59,9 @@ import { TransactionsComponent } from './transactions/transactions.component';
     TransactionsComponent
   ],
   imports: [
+    MatMenuModule,
     BrowserModule,
+    MatExpansionModule,
     AppRoutingModule,
     FormsModule,
     MatSidenavModule,

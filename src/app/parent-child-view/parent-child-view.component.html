@@ -1,23 +1,31 @@
-<div *ngIf="this.primaryAccount">
-    יתרה: {{this.primaryAccount.balance.displayValue}}
+<div *ngIf="this.primaryAccount" class="mat-display-1 account-title">
+    יתרה: <div class="amount"> {{this.primaryAccount.balance.displayValue}}</div>
+
 </div>
-<div>
-    <button (click)="deposit()" *ngIf="isParent()">הפקדה</button>
-    <button (click)="withdrawal()" *ngIf="isParent()">משיכה</button>
-    <button (click)="requestWithdrawal()" *ngIf="isChild()">תנו לי כסף לקנות משהו</button>
-    <button (click)="requestDeposit()" *ngIf="isChild()">קחו כסף לשמור לי</button>
-    <button (click)="addAccount()">פתח קופת חסכון</button>
+<div class="account-buttons">
+    <button mat-raised-button color="primary" (click)="deposit()" *ngIf="isParent()">הפקדה</button>
+    <button mat-raised-button color="primary" (click)="withdrawal()" *ngIf="isParent()">משיכה</button>
+    <button mat-raised-button color="primary" (click)="requestWithdrawal()" *ngIf="isChild()">תנו לי כסף לקנות
+        משהו</button>
+    <button mat-raised-button color="primary" (click)="requestDeposit()" *ngIf="isChild()">קחו כסף לשמור לי</button>
+</div>
+<div class="account-buttons">
+    <button mat-raised-button color="primary" (click)="addAccount()">פתח קופת חסכון</button>
 </div>
 <mat-tab-group>
     <mat-tab label="בקשות">
         <mat-nav-list role="list">
             <ng-container *ngFor="let t of requests">
                 <mat-list-item>
-                    <!-- <mat-icon mat-list-icon>{{t.type.value.icon}}</mat-icon> -->
-                    <div mat-line>{{t.type.value.caption}}, {{t.description.value}} , {{t.amount.displayValue}}
-                        <span *ngIf="showStatus(t)">{{t.status.displayValue}}</span>
-                        <span *ngIf="!showStatus(t)"><button (click)="approve(t)">אשר</button> <button
-                                (click)="deny(t)">דחה</button></span>
+                    <div class="flex-spread">
+                        <!-- <mat-icon mat-list-icon>{{t.type.value.icon}}</mat-icon> -->
+                        <div mat-line>{{t.type.value.caption}}, {{t.description.value}} , {{t.amount.displayValue}}
+
+                        </div>
+                        <div><span *ngIf="showStatus(t)">{{t.status.displayValue}}</span>
+                            <span *ngIf="!showStatus(t)"><button mat-raised-button color="primary"
+                                    (click)="approve(t)">אשר</button>
+                                <button mat-raised-button color="accent" (click)="deny(t)">דחה</button></span></div>
                     </div>
                     <mat-divider></mat-divider>
                 </mat-list-item>
@@ -29,9 +37,13 @@
     <mat-tab label="תנועות" *ngIf="this.primaryAccount">
         <app-transactions [account]="this.primaryAccount"></app-transactions>
     </mat-tab>
-    <mat-tab label="{{a.name.value}}" *ngFor="let a of accounts; trackBy:trackAccountBy">
-        יתרה: {{a.balance.displayValue}} / {{a.target.displayValue}}
-        <button (click)="addToSaving(a)">הפקדה</button>
+    <mat-tab label="{{a.getTabTitle()}}" *ngFor="let a of accounts; trackBy:trackAccountBy">
+        <div class="mat-display-1 account-title">
+            {{a.name.value}}: <div class="amount"> {{a.balance.displayValue}} / {{a.target.displayValue}}</div>
+        </div>
+        <div class="account-buttons">
+            <button (click)="addToSaving(a)" mat-raised-button color="primary">הפקדה ל{{a.name.value}}</button>
+        </div>
         <app-transactions [account]="a"></app-transactions>
     </mat-tab>
 

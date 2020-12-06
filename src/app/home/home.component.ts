@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { JwtSessionManager } from '@remult/angular';
 import { Context, getColumnsFromObject, ServerFunction } from '@remult/core';
 import { InputAreaComponent } from '../common/input-area/input-area.component';
@@ -6,6 +6,7 @@ import { CreateFamilyController } from '../families/create-family-controller';
 import { getInfo } from '../families/current-user-info';
 import { Families } from '../families/families';
 import { FamilySignInController } from '../families/family-sign-in-controller';
+import { ParentViewComponent } from '../parent-view/parent-view.component';
 import { Roles } from '../users/roles';
 import { ServerSignIn } from '../users/server-sign-in';
 
@@ -17,7 +18,7 @@ import { ServerSignIn } from '../users/server-sign-in';
 export class HomeComponent implements OnInit {
 
   constructor(public context: Context, private authService: JwtSessionManager) {
-    
+
   }
   async register() {
 
@@ -46,6 +47,26 @@ export class HomeComponent implements OnInit {
       }
     })
   }
+  async addMember() {
+    let f = await this.context.for(Families).findId(getInfo(this.context).familyId);
+    let member = f.createMember('');
+    this.context.openDialog(InputAreaComponent, x => x.args = {
+      title: 'הוסף בן משפחה',
+      columnSettings: () => [member.name, member.isParent],
+      ok: async () => {
+        await member.save();
+        this.parentView.loadMembers();
+      }
+    })
+  }
+  @ViewChild(ParentViewComponent, { static: false }) parentView;
+  getTitle() {
+    if (!this.context.isSignedIn())
+      return '';
+    if (this.showChooseFamilyMember())
+      return 'משפחת ' + getInfo(this.context).familyName + ": ";
+    return 'שלום ' + this.context.user.name;
+  }
   async exitToFamily() {
     this.authService.setToken(await HomeComponent.getFamilyToken(), true);
   }
@@ -57,12 +78,14 @@ export class HomeComponent implements OnInit {
   showChooseFamilyMember() {
     return this.context.isAllowed(Roles.familyInfo);
   }
-  showParentView(){
+  showParentView() {
     return this.context.isAllowed(Roles.parent);
   }
-  showChildView(){
+  showChildView() {
     return this.context.isAllowed(Roles.child);
   }
+
+
 
   ngOnInit() {
   }
