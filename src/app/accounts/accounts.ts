@@ -75,11 +75,12 @@ export class Transactions extends IdEntity {
             where: () => [t.type.isEqualTo(type).and(t.account.isEqualTo(accountId))]
         }));
         let options = r.rows.map(x => x.option);
+        console.log(options);
         if (options.length == 0) {
             if (type == TransactionType.withdrawal)
-                options.push(['vbucks']);
+                options.push('vbucks');
             else {
-                options.push(['דמי חנוכה', 'מתנה מסבא וסבתא']);
+                options.push('דמי חנוכה', 'מתנה מסבא וסבתא');
             }
         }
 
