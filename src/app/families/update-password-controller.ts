@@ -17,7 +17,9 @@ export class UpdatePasswordController {
             throw Error('סיסמה אינה תואמת את אישור הסיסמה');
         let m = await this.context.for(FamilyMembers).findId(this.context.user.id);
         m.password.value = Users.passwordHelper.generateHash(this.password.value);
+        if (this.password.value.trim().length == 0)
+            m.password.value = '';
         await m.save();
     }
- 
+
 }
