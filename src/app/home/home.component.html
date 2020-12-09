@@ -25,8 +25,11 @@
           <mat-icon>person_add_alt_1</mat-icon>
           הוסף בן משפחה
         </button>
-
-        <a href="mailto:noam.honig@gmail.com" mat-menu-item>
+        <button mat-menu-item (click)="removeMember()" *ngIf="showParentView()">
+          <mat-icon>person_remove</mat-icon>
+          הסר חשבון בן משפחה
+        </button>
+          <a href="mailto:noam.honig@gmail.com" mat-menu-item>
           <mat-icon>report_problem</mat-icon>
           דיווח תקלה/בקשה
         </a>

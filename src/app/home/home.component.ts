@@ -107,6 +107,18 @@ export class HomeComponent implements OnInit {
       }
     })
   }
+  async removeMember() {
+    let members = await this.context.for(FamilyMembers).find({ where: m => m.family.isEqualTo(getInfo(this.context).familyId) });
+    this.context.openDialog(SelectValueDialogComponent, x => x.args({
+      values: members.map(x => ({ caption: x.name.value, item: x })),
+      title: 'איזה חשבון להסיר?',
+      onSelect: async (m) => {
+        m.item.archive.value = true;
+        await m.item.save();
+        this.parentView.loadMembers();
+      }
+    }));
+  }
   async resetPassword() {
     let members = await this.context.for(FamilyMembers).find({ where: m => m.family.isEqualTo(getInfo(this.context).familyId) });
     this.context.openDialog(SelectValueDialogComponent, x => x.args({
@@ -117,7 +129,7 @@ export class HomeComponent implements OnInit {
       }
     }));
   }
-  @ServerFunction({ allowed: Roles.admin })
+  @ServerFunction({ allowed: Roles.parent })
   static async resetPassword(memberId: string, context?: Context) {
     let m = await context.for(FamilyMembers).findFirst(m => m.id.isEqualTo(memberId).and(m.family.isEqualTo(getInfo(context).familyId)));
     m.password.value = '';

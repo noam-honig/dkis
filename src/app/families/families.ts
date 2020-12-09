@@ -8,7 +8,7 @@ import { CurrentUserInfo, getInfo } from './current-user-info';
 export class Families extends IdEntity {
     name = new StringColumn("שם");
     createDate = new DateTimeColumn();
-    
+
     constructor(private context: Context) {
         super({
             caption: 'משפחות',
@@ -42,6 +42,7 @@ export class FamilyMembers extends IdEntity {
     name = new StringColumn("שם");
     email = new StringColumn('דוא"ל');
     password = new PasswordColumn();
+    archive = new BoolColumn();
     constructor(private context: Context) {
         super({
             caption: 'חברי משפחה',
@@ -49,11 +50,12 @@ export class FamilyMembers extends IdEntity {
             allowApiInsert: Roles.parent,
             defaultOrderBy: () =>
                 [{ column: this.isParent, descending: true }, this.name],
+            allowApiUpdate: Roles.parent,
 
             apiDataFilter: () => this.family.isEqualTo(getInfo(this.context).familyId),
             fixedWhereFilter: () => {
                 if (this.context.isSignedIn())
-                    return this.family.isEqualTo(getInfo(this.context).familyId);
+                    return this.family.isEqualTo(getInfo(this.context).familyId).and(this.archive.isEqualTo(false));
             },
             saving: async () => {
                 if (this.isNew() && context.onServer) {
