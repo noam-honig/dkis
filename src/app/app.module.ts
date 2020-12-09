@@ -37,7 +37,9 @@ import { ServerEventsService } from './server/server-events-service';
 
 import { TransactionsComponent } from './transactions/transactions.component';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatExpansionModule } from '@angular/material';
+import { MatExpansionModule} from '@angular/material/expansion'
+import {MatProgressBarModule } from '@angular/material/progress-bar';
+
 
 @NgModule({
   declarations: [
@@ -77,7 +79,8 @@ import { MatExpansionModule } from '@angular/material';
     MatIconModule,
     RemultModule,
     BrowserAnimationsModule,
-    MatTabsModule
+    MatTabsModule,
+    MatProgressBarModule
   ],
   providers: [DialogService, AdminGuard,ServerEventsService],
   bootstrap: [MainComponent],

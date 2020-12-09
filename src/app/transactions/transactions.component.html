@@ -1,22 +1,13 @@
-<mat-nav-list role="list">
+<mat-list role="list">
     <ng-container *ngFor="let t of transactions">
-        <mat-list-item>
-            <div class="flex-spread">
-                <div>
-                    <!-- <mat-icon mat-list-icon>{{t.type.value.icon}}</mat-icon> -->
-                    <div mat-line>{{t.type.value.caption}}, {{t.description.value}}
+                <mat-list-item>
+                    <mat-icon mat-list-icon>{{t.type.value.icon}}</mat-icon>
+                    <div mat-line style="white-space: normal;">{{t.getDescriptionForHistory()}}</div>
+                    <div mat-line>{{t.when()}}</div>
+                    <div [style.color]="t.type.value.color" dir="ltr" style="white-space: nowrap;">
+                        {{t.amount.displayValue}}
                     </div>
-                    <div>
-                        {{t.when()}}
-                    </div>
-                </div>
-                <div [style.color]="t.type.value.color">
-                    {{t.amount.displayValue}}
-                </div>
-                <mat-divider></mat-divider>
-            </div>
-        </mat-list-item>
-
-
+                        </mat-list-item>
+        <mat-divider></mat-divider>
     </ng-container>
-</mat-nav-list>
+</mat-list>

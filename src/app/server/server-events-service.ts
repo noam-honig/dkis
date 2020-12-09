@@ -2,6 +2,7 @@ import { Injectable, NgZone } from '@angular/core';
 import { BusyService, JwtSessionManager } from '@remult/angular';
 import { ServerFunction, Context } from '@remult/core';
 import { Subject } from 'rxjs';
+import { Accounts } from '../accounts/accounts';
 
 @Injectable()
 export class ServerEventsService {
@@ -39,7 +40,7 @@ export class ServerEventsService {
                     source.onmessage = e => {
 
                         this.zone.run(() => {
-                            this.familyInfoChangedSubject.next();
+                            this.refreshState();
                         });
                     };
                     let x = this;
@@ -55,6 +56,9 @@ export class ServerEventsService {
             }
         }
     }
+    refreshState(){
+        this.familyInfoChangedSubject.next();
+    }
 
     @ServerFunction({ allowed: c => c.isSignedIn() })
     static DoAthorize(key: string, context?: Context) {
@@ -62,6 +66,10 @@ export class ServerEventsService {
     }
 
     static authorize: (key: string, context: Context) => void = (key: string) => { };
+
+
+    activePart:string='';
+    
 }
 
 

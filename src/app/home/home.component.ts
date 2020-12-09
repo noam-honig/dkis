@@ -10,6 +10,8 @@ import { UpdatePasswordController } from '../families/update-password-controller
 import { ParentViewComponent } from '../parent-view/parent-view.component';
 import { Roles } from '../users/roles';
 import { ServerSignIn } from '../users/server-sign-in';
+import { ServerEventsService } from '../server/server-events-service';
+import { Requests, Accounts, TransactionType } from '../accounts/accounts';
 
 @Component({
   selector: 'app-home',
@@ -18,7 +20,7 @@ import { ServerSignIn } from '../users/server-sign-in';
 })
 export class HomeComponent implements OnInit {
 
-  constructor(public context: Context, private authService: JwtSessionManager) {
+  constructor(public context: Context, private authService: JwtSessionManager, public state: ServerEventsService) {
 
   }
   async register() {
@@ -45,6 +47,35 @@ export class HomeComponent implements OnInit {
         await c.updatePassword();
       }
     })
+  }
+  async requestWithdrawal() {
+    let t = this.context.for(Requests).create();
+    let primaryAccount = await this.context.for(Accounts).findFirst(x=>x.familyMember.isEqualTo(this.context.user.id).and(x.isPrimary.isEqualTo(true)));
+    t.account.value = primaryAccount.id.value;
+    t.type.value = TransactionType.withdrawal;
+    this.context.openDialog(InputAreaComponent, x => x.args = {
+      title: 'תיקנו לי משהו',
+      columnSettings: () => [t.amount, t.description],
+      ok: async () => {
+        await t.save();
+        this.state.refreshState();
+      }
+    });
+
+  }
+  async requestDeposit() {
+    let t = this.context.for(Requests).create();
+    let primaryAccount = await this.context.for(Accounts).findFirst(x=>x.familyMember.isEqualTo(this.context.user.id).and(x.isPrimary.isEqualTo(true)));
+    t.account.value = primaryAccount.id.value;
+    t.type.value = TransactionType.deposit;
+    this.context.openDialog(InputAreaComponent, x => x.args = {
+      title: 'קחו כסף לשמור לי',
+      columnSettings: () => [t.amount, t.description],
+      ok: async () => {
+        await t.save();
+        this.state.refreshState();
+      }
+    });
   }
 
   signOut() {
@@ -99,7 +130,7 @@ export class HomeComponent implements OnInit {
       return '';
     if (this.showChooseFamilyMember())
       return 'משפחת ' + getInfo(this.context).familyName + ": ";
-    return 'שלום ' + this.context.user.name;
+    return 'הי ' + this.context.user.name;
   }
   async exitToFamily() {
     this.authService.setToken(await HomeComponent.getFamilyToken(), true);

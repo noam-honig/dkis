@@ -30,6 +30,11 @@ export class Accounts extends IdEntity {
             return this.name.value + " " + (this.balance.value * 100 / this.target.value).toFixed(0) + "%";
         return this.name.value;
     }
+    getAmountRemainingToReachTargetDisplayValue() {
+        let x = new AmountColumn();
+        x.value = Math.max(0, this.target.value - this.balance.value);
+        return x.displayValue;
+    }
 
 }
 @EntityClass
@@ -39,7 +44,7 @@ export class Transactions extends IdEntity {
     account = new IdColumn();
     transactionTime = new DateTimeColumn("מתי");
     type = new ValueListColumn(TransactionType);
-    description = new StringColumn('תאור',{
+    description = new StringColumn('תאור', {
         dataControlSettings: () => ({
             click: async () => {
                 let values = await Transactions.getTransferOptions(this.account.value, this.type.value == TransactionType.withdrawal);
@@ -61,6 +66,17 @@ export class Transactions extends IdEntity {
     viewed = new BoolColumn();
     when() {
         return moment(this.transactionTime.value).locale('he').fromNow();
+    }
+    getDescriptionForHistory() {
+        
+        if (this.type.value == TransactionType.moveToAccount || this.type.value == TransactionType.receiveFromAccount) {
+        
+            let x =  this.context.for(Accounts).lookup(this.counterAccount);
+            return this.type.displayValue + x.name.displayValue;
+        }
+        else
+        
+            return this.description.displayValue;
     }
     @ServerFunction({
         allowed: [Roles.parent, Roles.child]
@@ -119,12 +135,12 @@ export class Transactions extends IdEntity {
 }
 
 export class TransactionType {
-    static deposit = new TransactionType("הפקדה", 'black', (amount, acc) => acc.balance.value += amount);
-    static withdrawal = new TransactionType("משיכה", 'red', (amount, acc) => acc.balance.value -= amount);
-    static receiveFromAccount = new TransactionType("קבלה מחשבון", 'black', (amount, acc) => acc.balance.value += amount);
-    static moveToAccount = new TransactionType("העברה לחשבון", 'green', (amount, acc) => acc.balance.value -= amount);
+    static deposit = new TransactionType("הכנסה", "monetization_on", 'black', (amount, acc) => acc.balance.value += amount);
+    static withdrawal = new TransactionType("הוצאה", "card_giftcard", 'red', (amount, acc) => acc.balance.value -= amount);
+    static receiveFromAccount = new TransactionType("העברה בחזרה לחשבון מקופה ", "savings", 'black', (amount, acc) => acc.balance.value += amount);
+    static moveToAccount = new TransactionType("הפקדה לקופה ", "savings", 'green', (amount, acc) => acc.balance.value -= amount);
 
-    constructor(public caption: string, public color: string, public applyAmountToAccount: (amount: number, acc: Accounts) => number) {
+    constructor(public caption: string, public icon: string, public color: string, public applyAmountToAccount: (amount: number, acc: Accounts) => number) {
 
     }
 }
@@ -136,6 +152,10 @@ export class Requests extends IdEntity {
     familyMember = new IdColumn();
     account = new IdColumn();
     timestamp = new DateTimeColumn("מתי");
+    when() {
+        return moment(this.timestamp.value).locale('he').fromNow();
+    }
+
     type = new ValueListColumn(TransactionType);
     status = new ValueListColumn(RequestStatus, { defaultValue: RequestStatus.pending });
     description = new StringColumn('תאור', {

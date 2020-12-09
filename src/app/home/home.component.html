@@ -1,69 +1,99 @@
-<div *ngIf="context.isSignedIn()" class="flex-spread">
-  <div>
-    <H3 style="padding-right:5px" class="mat-headline">{{getTitle()}}</H3>
+<div class="flex-container" style="height: 100%">
+  <mat-toolbar *ngIf="context.isSignedIn()">
+    <mat-toolbar-row>
+      <span style="flex: 1 1 auto">
+        <H3 style="padding-right: 40px; text-align: center;" class="mat-headline">{{getTitle()}}</H3>
+      </span>
+      <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
+        <mat-icon>person_outlined</mat-icon>
+      </button>
+      <mat-menu #menu="matMenu">
+        <button mat-menu-item (click)="updatePassword()" *ngIf="showParentView()||showChildView()">
+          <mat-icon>vpn_key</mat-icon>
+          עדכן סיסמה
+        </button>
+        <button mat-menu-item (click)="exitToFamily()" *ngIf="context.isSignedIn()&&!showChooseFamilyMember()">
+          <mat-icon>supervisor_account</mat-icon>
+          החלף
+          משתמש
+        </button>
+        <button mat-menu-item (click)="resetPassword()" *ngIf="showParentView()">
+          <mat-icon>remove_from_queue</mat-icon>
+          אתחל סיסמה לבן משפחה
+        </button>
+        <button mat-menu-item (click)="addMember()" *ngIf="showParentView()">
+          <mat-icon>person_add_alt_1</mat-icon>
+          הוסף בן משפחה
+        </button>
+
+        <a href="mailto:noam.honig@gmail.com" mat-menu-item>
+          <mat-icon>report_problem</mat-icon>
+          דיווח תקלה/בקשה
+        </a>
+        <button mat-menu-item (click)="signOut()" *ngIf="context.isSignedIn()">
+          <mat-icon>mobile_off</mat-icon>
+          יציאה
+        </button>
+
+      </mat-menu>
+    </mat-toolbar-row>
+  </mat-toolbar>
+
+  <div *ngIf="!showChildView()&&!showParentView()&&!showChooseFamilyMember()">
+    <h2>דמי כיס</h2>
+    <p>ברוכים הבאים לאפליקצית דמי כיס</p>
+    <p>אפליקציית דמי כיס עוזרת לעקוב אחרי דמי הכיס של הילדים, ועוזרת לילדים ללמוד התנהלות כלכלית</p>
+    <h3>משתמשים חדשים</h3>
+    <button mat-raised-button (click)="register()" *ngIf="!context.isSignedIn()">הרשמה</button>
+    <h3>משתמשים קיימים</h3>
+    <button mat-raised-button (click)="signIn()" *ngIf="!context.isSignedIn()">כניסה </button>
+
   </div>
-  <div>
-    <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
-      <mat-icon>menu</mat-icon>
+  <div style="flex: 1 1 auto;display: flex;flex-direction: column;">
+
+
+    <app-choose-family-member *ngIf="showChooseFamilyMember()">
+
+    </app-choose-family-member>
+    <app-parent-view *ngIf="showParentView()"  class="flex-container">
+
+    </app-parent-view>
+    <app-child *ngIf="showChildView()" class="flex-container">
+
+    </app-child>
+  </div>
+
+  <mat-toolbar style="flex: 0 0 auto; display: flex; justify-content: space-between;"
+  *ngIf="showChildView() || showParentView()">
+    <button mat-icon-button disableRipple="true" (click)="this.state.activePart = 'savings'"
+        [color]="this.state.activePart == 'savings' ? 'primary' : ''">
+        <mat-icon>savings</mat-icon>
+        <div class="mat-small" style="position:relative; top: -12px;">קופות</div>
     </button>
-    <mat-menu #menu="matMenu">
-      <button mat-menu-item (click)="updatePassword()" *ngIf="showParentView()||showChildView()">
-        <mat-icon>vpn_key</mat-icon>
-        עדכן סיסמה
-      </button>
-      <button mat-menu-item (click)="exitToFamily()" *ngIf="context.isSignedIn()&&!showChooseFamilyMember()">
-        <mat-icon>supervisor_account</mat-icon>
-        החלף
-        משתמש
-      </button>
-      <button mat-menu-item (click)="resetPassword()" *ngIf="showParentView()">
-        <mat-icon>remove_from_queue</mat-icon>
-        אתחל סיסמה לבן משפחה
-      </button>
-      <button mat-menu-item (click)="addMember()" *ngIf="showParentView()">
-        <mat-icon>person_add_alt_1</mat-icon>
-        הוסף בן משפחה
-      </button>
-      
-      <a href="mailto:noam.honig@gmail.com" mat-menu-item>
-        <mat-icon>report_problem</mat-icon>
-        דיווח תקלה/בקשה
-      </a>
-      <button mat-menu-item (click)="signOut()" *ngIf="context.isSignedIn()">
-        <mat-icon>mobile_off</mat-icon>
-        יציאה
-      </button>
 
-    </mat-menu>
-  </div>
-
-</div>
-
-<div>
+    <button mat-icon-button disableRipple="true" (click)="requestDeposit()" *ngIf="showChildView()">
+        <mat-icon>monetization_on</mat-icon>
+        <div class="mat-small" style="position:relative; top: -12px;">הכנסה</div>
+    </button>
 
 
+    <button mat-icon-button disableRipple="true" (click)="this.state.activePart = ''"
+        [color]="this.state.activePart == '' ? 'primary' : ''">
+        <mat-icon>home</mat-icon>
+        <div class="mat-small" style="position:relative; top: -12px;">בית</div>
+    </button>
 
-</div>
-<div *ngIf="!showChildView()&&!showParentView()&&!showChooseFamilyMember()">
-  <h2>דמי כיס</h2>
-  <p>ברוכים הבאים לאפליקצית דמי כיס</p>
-  <p>אפליקציית דמי כיס עוזרת לעקוב אחרי דמי הכיס של הילדים, ועוזרת לילדים ללמוד התנהלות כלכלית</p>
-  <h3>משתמשים חדשים</h3>
-  <button mat-raised-button (click)="register()" *ngIf="!context.isSignedIn()">הרשמה</button>
-  <h3>משתמשים קיימים</h3>
-  <button mat-raised-button (click)="signIn()" *ngIf="!context.isSignedIn()">כניסה </button>
+    <button mat-icon-button disableRipple="true" (click)="requestWithdrawal()" *ngIf="showChildView()">
+        <mat-icon>card_giftcard</mat-icon>
+        <div class="mat-small" style="position:relative; top: -12px;">הוצאה</div>
+    </button>
 
-</div>
-<div>
+    <button mat-icon-button disableRipple="true" (click)="this.state.activePart = 'history'"
+        [color]="this.state.activePart == 'history' ? 'primary' : ''">
+        <mat-icon>history</mat-icon>
+        <div class="mat-small" style="position:relative; top: -12px;">היסטוריה</div>
+    </button>
 
+</mat-toolbar>
 
-  <app-choose-family-member *ngIf="showChooseFamilyMember()">
-
-  </app-choose-family-member>
-  <app-parent-view *ngIf="showParentView()">
-
-  </app-parent-view>
-  <app-child *ngIf="showChildView()">
-
-  </app-child>
 </div>

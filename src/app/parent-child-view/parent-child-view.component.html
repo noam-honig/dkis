@@ -1,50 +1,100 @@
-<div  class="mat-display-1 account-title">
-    יתרה: <div class="amount" *ngIf="this.primaryAccount"> {{this.primaryAccount.balance.displayValue}}</div>
+<div class="flex-container">
 
-</div>
-<div class="account-buttons">
-    <button mat-raised-button color="primary" (click)="deposit()" *ngIf="isParent()">הפקדה</button>
-    <button mat-raised-button color="primary" (click)="withdrawal()" *ngIf="isParent()">משיכה</button>
-    <button mat-raised-button color="primary" (click)="requestWithdrawal()" *ngIf="isChild()">תנו לי כסף לקנות
-        משהו</button>
-    <button mat-raised-button color="primary" (click)="requestDeposit()" *ngIf="isChild()">תוסיפו לי כסף לחשבון</button>
-</div>
-<div class="account-buttons">
-    <button mat-raised-button color="primary" (click)="addAccount()">פתח קופת חסכון</button>
-</div>
-<mat-tab-group>
-    <mat-tab label="בקשות">
-        <mat-nav-list role="list">
-            <ng-container *ngFor="let t of requests">
-                <mat-list-item>
-                    <div class="flex-spread">
-                        <!-- <mat-icon mat-list-icon>{{t.type.value.icon}}</mat-icon> -->
-                        <div mat-line>{{t.type.value.caption}}, {{t.description.value}} , {{t.amount.displayValue}}
+    <div class="flex-container" style="flex-basis: 200px; overflow-y: auto;">
 
-                        </div>
-                        <div><span *ngIf="showStatus(t)">{{t.status.displayValue}}</span>
-                            <span *ngIf="!showStatus(t)"><button mat-raised-button color="primary"
-                                    (click)="approve(t)">אשר</button>
-                                <button mat-raised-button color="accent" (click)="deny(t)">דחה</button></span></div>
+        <div *ngIf="this.state.activePart == ''">
+            <div class="home">
+                <div style="margin-top: 50px; margin-bottom: 50px;">
+                    <div style="text-align: center;" class="mat-h3">
+                        כסף בחשבונך
                     </div>
-                    <mat-divider></mat-divider>
-                </mat-list-item>
+                    <div style="text-align: center;">
+                        <span style="visibility: hidden;">₪</span>
+                        <span [class]="this.primaryAccount.balance.value.toLocaleString().length > 4 ? 'mat-display-3' : 'mat-display-4'" dir="ltr"
+                            *ngIf="this.primaryAccount">{{this.primaryAccount.balance.value.toLocaleString()}}</span>
+                        <span>₪</span>
+                    </div>
+                </div>
 
+                <div>
+                    <button mat-raised-button color="primary" (click)="deposit()" *ngIf="isParent()">הפקדה</button>
+                </div>
+                <div>
+                    <button mat-raised-button color="primary" (click)="withdrawal()" *ngIf="isParent()">משיכה</button>
+                </div>
 
-            </ng-container>
-        </mat-nav-list>
-    </mat-tab>
-    <mat-tab label="תנועות" *ngIf="this.primaryAccount">
-        <app-transactions [account]="this.primaryAccount"></app-transactions>
-    </mat-tab>
-    <mat-tab label="{{a.getTabTitle()}}" *ngFor="let a of accounts; trackBy:trackAccountBy">
-        <div class="mat-display-1 account-title">
-            {{a.name.value}}: <div class="amount"> {{a.balance.displayValue}} / {{a.target.displayValue}}</div>
+                <div>
+                    <button mat-raised-button color="primary" (click)="addToSavings()" *ngIf="isChild()">הפקדה
+                        לקופה</button>
+                </div>
+            </div>
+            <mat-card style="margin: 8px;" *ngFor="let t of requests">
+                <mat-card-header>
+                    <mat-icon mat-card-avatar style="width: 40px; height: 40px; font-size: 40px;">{{t.type.value.icon}}
+                    </mat-icon>
+                    <mat-card-title>בקשה ל{{t.type.value.caption}}</mat-card-title>
+                    <mat-card-subtitle>{{t.when()}}</mat-card-subtitle>
+                </mat-card-header>
+
+                <mat-card-content>
+                    <p>
+                        ביקשתי {{t.type.value.caption}} של <strong dir="ltr">{{t.amount.displayValue}}</strong> עבור
+                        <strong>{{t.description.value}}</strong>
+                    </p>
+                </mat-card-content>
+
+                <mat-card-actions *ngIf="!showStatus(t)">
+                    <button mat-stroked-button color="primary" (click)="approve(t)">אשר בקשה</button>
+                    <span style="margin: 0px 5px;"></span>
+                    <button mat-stroked-button color="warn" (click)="deny(t)">דחה בקשה</button>
+
+                </mat-card-actions>
+
+            </mat-card>
+
         </div>
-        <div class="account-buttons">
-            <button (click)="addToSaving(a)" mat-raised-button color="primary">הפקדה ל{{a.name.value}}</button>
-        </div>
-        <app-transactions [account]="a"></app-transactions>
-    </mat-tab>
 
-</mat-tab-group>
+        <div *ngIf="this.state.activePart == 'history'" class="flex-container">
+
+            <mat-toolbar color="primary">
+                <span>היסטוריה</span>
+            </mat-toolbar>
+
+            <mat-card *ngIf="this.primaryAccount" style="margin: 8px; flex: 1 1 20px; overflow-y: auto;">
+                <app-transactions [account]="this.primaryAccount"></app-transactions>
+            </mat-card>
+        </div>
+
+        <div *ngIf="this.state.activePart == 'savings'" class="flex-container">
+            <mat-toolbar color="primary">
+                <span>קופות חסכון</span>
+                <span style="flex: 1 1 auto;"></span>
+                <button mat-icon-button (click)="addAccount()">
+                    <mat-icon>add</mat-icon>
+                </button>
+            </mat-toolbar>
+
+            <div style="flex: 1 1 20px; overflow-y: auto;">
+                <mat-card *ngFor="let a of accounts; trackBy:trackAccountBy" style="margin:16px;">
+                    <mat-card-header>
+                        <mat-card-title>{{a.name.displayValue}}</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                        <mat-progress-bar mode="determinate" [value]="a.balance.value / a.target.value * 100">
+                        </mat-progress-bar>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>חסכתי <strong dir="ltr">{{ a.balance.displayValue }}</strong></span>
+                            <span>נותר לי לחסוך עוד <strong
+                                    dir="ltr">{{ a.getAmountRemainingToReachTargetDisplayValue() }}</strong></span>
+                        </div>
+                    </mat-card-content>
+                    <mat-card-actions>
+                        <button mat-stroked-button (click)="withdrawFromSaving(a)">העבר כסף בחזרה לחשבון</button>
+                    </mat-card-actions>
+                </mat-card>
+            </div>
+
+        </div>
+    </div>
+
+</div>

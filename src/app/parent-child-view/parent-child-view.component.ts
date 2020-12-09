@@ -1,5 +1,5 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { Context, ServerFunction } from '@remult/core';
+import { Context, ServerFunction, IdColumn } from '@remult/core';
 import { Accounts, Requests, RequestStatus, Transactions, TransactionType } from '../accounts/accounts';
 import { AmountColumn } from '../accounts/Amount-Column';
 import { InputAreaComponent } from '../common/input-area/input-area.component';
@@ -19,8 +19,8 @@ export class ParentChildViewComponent implements OnInit, OnDestroy {
   primaryAccount: Accounts;
 
   requests: Requests[] = [];
-  constructor(private context: Context, serverEvents: ServerEventsService) {
-    serverEvents.onFamilyInfoChangedSubject(() => this.loadTransactions(), this.destroyHelper)
+  constructor(private context: Context,public  state: ServerEventsService) {
+    state.onFamilyInfoChangedSubject(() => this.loadTransactions(), this.destroyHelper)
   }
   destroyHelper = new DestroyHelper();
   ngOnDestroy(): void {
@@ -62,18 +62,44 @@ export class ParentChildViewComponent implements OnInit, OnDestroy {
       this.loading = false;
     }
   }
+  async addToSavings() {
+    let amount = new AmountColumn("כמה להפקיד?");
+    let targetAccountId = new IdColumn({
+      dataControlSettings: () => ({
+        valueList:() => this.context.for(Accounts).getValueList({captionColumn:e=>e.name, where: e=> e.isPrimary.isEqualTo(false)})
+      })
+    });
+    this.context.openDialog(InputAreaComponent, x => x.args = {
+      title: 'כמה להפקיד?',
+      columnSettings: () => [amount, targetAccountId],
+      ok: async () => {
+        await ParentChildViewComponent.transferBetweenAccounts(this.primaryAccount.id.value, targetAccountId.value, amount.value);
+      }
+    });
+  }
+  async withdrawFromSaving(account: Accounts) {
+    let amount = new AmountColumn("כמה להעביר?");
+    this.context.openDialog(InputAreaComponent, x => x.args = {
+      title: 'כמה להעביר?',
+      columnSettings: () => [amount],
+      ok: async () => {
+        await ParentChildViewComponent.transferBetweenAccounts(account.id.value, this.primaryAccount.id.value, amount.value);
+      }
+    });
+  }
+
   async addToSaving(account: Accounts) {
     let amount = new AmountColumn("כמה להפקיד?");
     this.context.openDialog(InputAreaComponent, x => x.args = {
       title: 'כמה להפקיד?',
       columnSettings: () => [amount],
       ok: async () => {
-        await ParentChildViewComponent.depositToSaving(this.primaryAccount.id.value, account.id.value, amount.value);
+        await ParentChildViewComponent.transferBetweenAccounts(this.primaryAccount.id.value, account.id.value, amount.value);
       }
     });
   }
   @ServerFunction({ allowed: true })
-  static async depositToSaving(sourceAccount: string, targetAccount: string, amount: number, context?: Context) {
+  static async transferBetweenAccounts(sourceAccount: string, targetAccount: string, amount: number, context?: Context) {
     let source = context.for(Transactions).create();
     source.amount.value = amount;
     source.account.value = sourceAccount;
@@ -89,6 +115,7 @@ export class ParentChildViewComponent implements OnInit, OnDestroy {
 
     target.counterTransaction.value = source.id.value;
     source.counterTransaction.value = target.id.value;
+
     await Promise.all([source.save(), target.save()]);
   }
   async addAccount() {
@@ -102,34 +129,9 @@ export class ParentChildViewComponent implements OnInit, OnDestroy {
       }
     });
   }
-  async requestWithdrawal() {
-    let t = this.context.for(Requests).create();
-    t.account.value = this.primaryAccount.id.value;
-    t.type.value = TransactionType.withdrawal;
-    this.context.openDialog(InputAreaComponent, x => x.args = {
-      title: 'תיקנו לי משהו',
-      columnSettings: () => [t.amount, t.description],
-      ok: async () => {
-        await t.save();
-        await this.primaryAccount.reload();
-      }
-    });
+  
 
-  }
-  async requestDeposit() {
-    let t = this.context.for(Requests).create();
-    t.account.value = this.primaryAccount.id.value;
-    t.type.value = TransactionType.deposit;
-    this.context.openDialog(InputAreaComponent, x => x.args = {
-      title: 'קחו כסף לשמור לי',
-      columnSettings: () => [t.amount, t.description],
-      ok: async () => {
-        await t.save();
-        await this.primaryAccount.reload();
-      }
-    });
-
-  }
+  
   async deny(r: Requests) {
     await Requests.setStatus(r.id.value, false);
     this.loadTransactions();
@@ -173,4 +175,5 @@ export class ParentChildViewComponent implements OnInit, OnDestroy {
     });
   }
 
+  
 }
