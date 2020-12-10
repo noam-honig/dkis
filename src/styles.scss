@@ -58,6 +58,10 @@ input[type="email"] {
     align-items: stretch;
 }
 
-.mat-tab-body-wrapper{
+.mat-tab-body-wrapper {
     flex-grow: 1;
-  }
+}
+
+.overlay {
+    max-width: 100% !important;
+}

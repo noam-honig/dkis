@@ -4,6 +4,7 @@ import { Accounts, Transactions } from '../accounts/accounts';
 import { YesNoQuestionComponent } from '../common/yes-no-question/yes-no-question.component';
 import { DestroyHelper, ServerEventsService } from '../server/server-events-service';
 import { Roles } from '../users/roles';
+import { TransactionApprovedMessageComponent } from '../transaction-approved-message/transaction-approved-message.component';
 
 @Component({
   selector: 'app-transactions',

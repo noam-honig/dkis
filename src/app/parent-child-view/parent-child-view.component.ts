@@ -8,7 +8,9 @@ import { FamilyMembers } from '../families/families';
 import { DestroyHelper, ServerEventsService } from '../server/server-events-service';
 import { Roles } from '../users/roles';
 import ConfettiGenerator from "confetti-js";
-import { settings } from 'cluster';
+
+import { TransactionApprovedMessageComponent } from '../transaction-approved-message/transaction-approved-message.component';
+
 @Component({
   selector: 'app-parent-child-view',
   templateUrl: './parent-child-view.component.html',
@@ -83,11 +85,7 @@ export class ParentChildViewComponent implements OnInit, OnDestroy {
             this.confetti.render();
 
 
-            await this.context.openDialog(YesNoQuestionComponent, x => x.args = {
-              message: t.type.value.caption + " - " + t.description.value + " " + t.amount.displayValue,
-              isAQuestion: false
-
-            });
+            await this.context.openDialog(TransactionApprovedMessageComponent, x => x.transaction = t);
             await Transactions.setViewed(t.id.value);
           }
         }));
