@@ -3,9 +3,11 @@ import { Context, ServerFunction, IdColumn } from '@remult/core';
 import { Accounts, Requests, RequestStatus, Transactions, TransactionType } from '../accounts/accounts';
 import { AmountColumn } from '../accounts/Amount-Column';
 import { InputAreaComponent } from '../common/input-area/input-area.component';
+import { YesNoQuestionComponent } from '../common/yes-no-question/yes-no-question.component';
 import { FamilyMembers } from '../families/families';
 import { DestroyHelper, ServerEventsService } from '../server/server-events-service';
 import { Roles } from '../users/roles';
+import { TransactionApprovedMessageComponent } from '../transaction-approved-message/transaction-approved-message.component';
 
 @Component({
   selector: 'app-parent-child-view',
@@ -19,7 +21,7 @@ export class ParentChildViewComponent implements OnInit, OnDestroy {
   primaryAccount: Accounts;
 
   requests: Requests[] = [];
-  constructor(private context: Context,public  state: ServerEventsService) {
+  constructor(private context: Context, public state: ServerEventsService) {
     state.onFamilyInfoChangedSubject(() => this.loadTransactions(), this.destroyHelper)
   }
   destroyHelper = new DestroyHelper();
@@ -48,7 +50,7 @@ export class ParentChildViewComponent implements OnInit, OnDestroy {
       return;
     this.loading = true;
     try {
-      await Promise.all([
+      let promises: Promise<any>[] = [
         this.context.for(Accounts).find({
           where: acc => acc.familyMember.isEqualTo(this.childId)
         }).then(accounts => {
@@ -56,24 +58,64 @@ export class ParentChildViewComponent implements OnInit, OnDestroy {
           this.accounts = accounts;
         }),
         this.context.for(Requests).find({ where: t => t.familyMember.isEqualTo(this.childId).and(t.status.isEqualTo(RequestStatus.pending)) }).then(r => this.requests = r)
-      ])
+
+      ];
+      if (this.context.isAllowed(Roles.child))
+        promises.push(this.context.for(Transactions).find({ where: t => t.familyMember.isEqualTo(this.childId).and(t.viewed.isEqualTo(false)) }).then(async transactions => {
+
+
+          for (const t of transactions.reverse()) {
+
+            await this.context.openDialog(TransactionApprovedMessageComponent, x => x.transaction = t);
+            await Transactions.setViewed(t.id.value);
+          }
+        }));
+      await Promise.all(promises);
+      let delta = this.primaryAccount.balance.value - this.balance;
+      this.balance = this.primaryAccount.balance.value;
+      this.animateChange(delta);
     }
     finally {
       this.loading = false;
     }
   }
+  displayBalance() {
+    return (this.balance - this.balanceAnimationDelta).toLocaleString();
+  }
+  balance = 0;
+  balanceAnimationDelta = 0;
+  private animateChange(change: number) {
+    this.balanceAnimationDelta = change;
+    const steps = 50;
+    let currentStep = 0;
+    let interval = setInterval(() => {
+      currentStep++;
+      this.balanceAnimationDelta = Math.round(change * (steps - currentStep) / steps);
+      if (currentStep == steps) {
+        this.balanceAnimationDelta = 0;
+        clearInterval(interval);
+      }
+    }, 15);
+  }
   async addToSavings() {
     let amount = new AmountColumn("כמה להפקיד?");
     let targetAccountId = new IdColumn({
       dataControlSettings: () => ({
-        valueList:() => this.context.for(Accounts).getValueList({captionColumn:e=>e.name, where: e=> e.isPrimary.isEqualTo(false)})
+        valueList: () => this.context.for(Accounts).getValueList({ captionColumn: e => e.name, where: e => e.isPrimary.isEqualTo(false) }),
       })
+
     });
+    let def = this.accounts.find(x => !x.isPrimary.value);
+    if (def)
+      targetAccountId.value = def.id.value;
+
     this.context.openDialog(InputAreaComponent, x => x.args = {
       title: 'כמה להפקיד?',
       columnSettings: () => [amount, targetAccountId],
       ok: async () => {
         await ParentChildViewComponent.transferBetweenAccounts(this.primaryAccount.id.value, targetAccountId.value, amount.value);
+        await this.loadTransactions();
+        this.animateChange(-amount.value);
       }
     });
   }
@@ -86,6 +128,26 @@ export class ParentChildViewComponent implements OnInit, OnDestroy {
         await ParentChildViewComponent.transferBetweenAccounts(account.id.value, this.primaryAccount.id.value, amount.value);
       }
     });
+  }
+  async editAccount(account: Accounts) {
+    this.context.openDialog(InputAreaComponent, x => x.args = {
+      title: 'עדכון פרטי קופה',
+      columnSettings: () => [account.name, account.target],
+      ok: async () => {
+        await account.save();
+      },
+      cancel: () => account.undoChanges(),
+      buttons: [{
+        text: 'בטל קופה', click: async () => {
+          account.archive.value = true;
+          await account.save();
+          x.dialogRef.close();
+          this.loadTransactions();
+
+        }
+      }]
+    })
+
   }
 
   async addToSaving(account: Accounts) {
@@ -129,9 +191,9 @@ export class ParentChildViewComponent implements OnInit, OnDestroy {
       }
     });
   }
-  
 
-  
+
+
   async deny(r: Requests) {
     await Requests.setStatus(r.id.value, false);
     this.loadTransactions();
@@ -175,5 +237,5 @@ export class ParentChildViewComponent implements OnInit, OnDestroy {
     });
   }
 
-  
+
 }

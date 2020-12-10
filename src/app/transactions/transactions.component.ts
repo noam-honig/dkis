@@ -44,12 +44,6 @@ export class TransactionsComponent implements OnInit {
         this.context.for(Transactions).find({ where: t => t.account.isEqualTo(this.account.id) }).then(t => this.transactions = t),
 
       ]);
-      if (this.context.isAllowed(Roles.child))
-        for (const t of this.transactions.filter(t => !t.viewed.value).reverse()) {
-
-          await this.context.openDialog(TransactionApprovedMessageComponent, x => x.transaction = t);
-          await Transactions.setViewed(t.id.value);
-        }
     }
     finally {
       this.loading = false;

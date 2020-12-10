@@ -95,7 +95,7 @@ export class FamilyColumn extends IdColumn {
     notifyChange() {
         setTimeout(() => {
             FamilyTools.SendMessageToBrowsersImplementation(this.value, "message");
-        }, 1000);
+        }, 100);
     }
 }
 

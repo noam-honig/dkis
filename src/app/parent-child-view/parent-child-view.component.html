@@ -5,13 +5,13 @@
         <div *ngIf="this.state.activePart == ''">
             <div class="home">
                 <div style="margin-top: 50px; margin-bottom: 50px;">
-                    <div style="text-align: center;" class="mat-h3">
+                    <div style="text-align: center;" class="mat-h3" *ngIf="isChild()">
                         כסף בחשבונך
                     </div>
                     <div style="text-align: center;">
                         <span style="visibility: hidden;">₪</span>
-                        <span [class]="this.primaryAccount.balance.value.toLocaleString().length > 4 ? 'mat-display-3' : 'mat-display-4'" dir="ltr"
-                            *ngIf="this.primaryAccount">{{this.primaryAccount.balance.value.toLocaleString()}}</span>
+                        <span [class]="displayBalance().length > 6 ? 'mat-display-3' : 'mat-display-4'" dir="ltr"
+                            *ngIf="this.primaryAccount">{{displayBalance()}}</span>
                         <span>₪</span>
                     </div>
                 </div>
@@ -24,8 +24,11 @@
                 </div>
 
                 <div>
-                    <button mat-raised-button color="primary" (click)="addToSavings()" *ngIf="isChild()">הפקדה
+                    <button mat-raised-button color="primary" (click)="addToSavings()"
+                        *ngIf="isChild()&&accounts?.length>0">הפקדה
                         לקופה</button>
+                    <button mat-raised-button color="primary" (click)="addAccount()"
+                        *ngIf="isChild()&&accounts?.length==0">פתיחת קופת חסכון</button>
                 </div>
             </div>
             <mat-card style="margin: 8px;" *ngFor="let t of requests">
@@ -88,8 +91,11 @@
                                     dir="ltr">{{ a.getAmountRemainingToReachTargetDisplayValue() }}</strong></span>
                         </div>
                     </mat-card-content>
-                    <mat-card-actions>
+                    <mat-card-actions style="display:flex;place-content: space-between;">
                         <button mat-stroked-button (click)="withdrawFromSaving(a)">העבר כסף בחזרה לחשבון</button>
+                        <button mat-icon-button (click)="editAccount(a)">
+                            <mat-icon>edit</mat-icon>
+                        </button>
                     </mat-card-actions>
                 </mat-card>
             </div>
