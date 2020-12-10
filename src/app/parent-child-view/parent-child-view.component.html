@@ -41,8 +41,8 @@
 
                 <mat-card-content>
                     <p>
-                        ביקשתי {{t.type.value.caption}} של <strong dir="ltr">{{t.amount.displayValue}}</strong> עבור
-                        <strong>{{t.description.value}}</strong>
+                        ביקשתי {{t.type.value.caption}} של <strong dir="ltr">{{t.amount.displayValue}}</strong><ng-container *ngIf="t.description.value != ''"> עבור
+                        <strong>{{t.description.value}}</strong></ng-container>
                     </p>
                 </mat-card-content>
 
