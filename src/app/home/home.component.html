@@ -21,6 +21,10 @@
           <mat-icon>remove_from_queue</mat-icon>
           אתחל סיסמה לבן משפחה
         </button>
+        <button mat-menu-item (click)="sendFamilyInvite()" *ngIf="showParentView()">
+          <mat-icon>speaker_notes</mat-icon>
+          שלח קישור הזמנה לבן משפחה
+        </button>
         <button mat-menu-item (click)="addMember()" *ngIf="showParentView()">
           <mat-icon>person_add_alt_1</mat-icon>
           הוסף בן משפחה

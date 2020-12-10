@@ -1,9 +1,9 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { JwtSessionManager, SelectValueDialogComponent } from '@remult/angular';
-import { Context, getColumnsFromObject, ServerFunction } from '@remult/core';
+import { Context, getColumnsFromObject, ServerFunction, StringColumn } from '@remult/core';
 import { InputAreaComponent } from '../common/input-area/input-area.component';
 import { CreateFamilyController } from '../families/create-family-controller';
-import { getInfo } from '../families/current-user-info';
+import { CurrentUserInfo, getInfo } from '../families/current-user-info';
 import { Families, FamilyMembers, PasswordColumn } from '../families/families';
 import { FamilySignInController } from '../families/family-sign-in-controller';
 import { UpdatePasswordController } from '../families/update-password-controller';
@@ -25,9 +25,52 @@ export class HomeComponent implements OnInit {
 
   constructor(public context: Context, private authService: JwtSessionManager, public state: ServerEventsService) {
 
-  }
-  ngOnInit(): void {
 
+
+  }
+  async ngOnInit() {
+    if (!this.context.isSignedIn()) {
+
+      let invite = new URLSearchParams(window.location.search).get('invite');
+      if (invite) {
+        let token = await HomeComponent.signInWithInvite(invite);
+        this.authService.setToken(token);
+        localStorage.setItem('token', token);
+      }
+
+    }
+  }
+  async sendFamilyInvite() {
+
+    var sc = new StringColumn("הודעה אישית");
+    sc.value = 'אנא הכנס ללינק: ';
+    let url = window.location.origin + '/Home?invite=' + await HomeComponent.createFamilyInviteToken();
+    this.context.openDialog(InputAreaComponent, x => x.args = {
+      title: 'הזמן בן משפחה',
+      columnSettings: () => [sc],
+      ok: () => {
+
+        window.open('https://wa.me/' + '?text=' + encodeURI(sc.value + url), '_blank');
+      }
+    });
+  }
+  @ServerFunction({ allowed: Roles.parent })
+  static async createFamilyInviteToken(context?: Context) {
+    let f = await context.for(Families).findId(getInfo(context).familyId);
+    return ServerSignIn.helper.createSecuredTokenBasedOn(f.createFamilyUserInfo(), { expiresIn: 1000 * 60 * 60 * 24 });
+  }
+  @ServerFunction({ allowed: true })
+  static async signInWithInvite(invite: string, context?: Context) {
+    try {
+      let info = <CurrentUserInfo>await ServerSignIn.helper.validateToken(invite);
+      let f = await context.for(Families).findId(info.familyId);
+      return ServerSignIn.helper.createSecuredTokenBasedOn(f.createFamilyUserInfo());
+
+    }
+    catch (err) {
+      console.log(err);
+      throw new Error('הזמנה לא תקינה - אנא בקש הזמנה חדשה');
+    }
   }
 
   async register() {
