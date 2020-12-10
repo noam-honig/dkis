@@ -185,7 +185,7 @@ export class HomeComponent implements OnInit {
     if (!this.context.isSignedIn())
       return '';
     if (this.showChooseFamilyMember())
-      return 'משפחת ' + getInfo(this.context).familyName + ": ";
+      return 'משפחת ' + getInfo(this.context).familyName;
     return 'הי ' + this.context.user.name;
   }
   async exitToFamily() {
