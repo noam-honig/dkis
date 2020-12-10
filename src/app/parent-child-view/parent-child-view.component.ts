@@ -61,7 +61,7 @@ export class ParentChildViewComponent implements OnInit, OnDestroy {
       ];
       if (this.context.isAllowed(Roles.child))
         promises.push(this.context.for(Transactions).find({ where: t => t.familyMember.isEqualTo(this.childId).and(t.viewed.isEqualTo(false)) }).then(async transactions => {
-          
+
 
           for (const t of transactions.reverse()) {
 
@@ -131,6 +131,26 @@ export class ParentChildViewComponent implements OnInit, OnDestroy {
         await ParentChildViewComponent.transferBetweenAccounts(account.id.value, this.primaryAccount.id.value, amount.value);
       }
     });
+  }
+  async editAccount(account: Accounts) {
+    this.context.openDialog(InputAreaComponent, x => x.args = {
+      title: 'עדכון פרטי קופה',
+      columnSettings: () => [account.name, account.target],
+      ok: async () => {
+        await account.save();
+      },
+      cancel: () => account.undoChanges(),
+      buttons: [{
+        text: 'בטל קופה', click: async () => {
+          account.archive.value = true;
+          await account.save();
+          x.dialogRef.close();
+          this.loadTransactions();
+
+        }
+      }]
+    })
+
   }
 
   async addToSaving(account: Accounts) {

@@ -13,14 +13,28 @@ export class Accounts extends IdEntity {
     familyMember = new IdColumn();
     name = new StringColumn("שם");
     isPrimary = new BoolColumn("ראשי");
-    balance = new AmountColumn("יתרה");
+    balance = new AmountColumn({ caption: "יתרה", allowApiUpdate: false });
     target = new AmountColumn("סכום מטרה");
+    archive = new BoolColumn();
     constructor(private context: Context) {
         super({
             caption: 'חשבונות',
             name: 'accounts',
             allowApiInsert: true,
+            allowApiUpdate: true,
+            fixedWhereFilter:()=>this.archive.isEqualTo(false),
             saving: () => {
+                if (!this.isNew()) {
+                    for (const col of [this.familyMember, this.family, this.isPrimary]) {
+                        col.value = col.originalValue;
+                    }
+                    if (this.isPrimary.value) {
+                        this.archive.value = this.archive.originalValue;
+                    }
+                    if (this.archive.value && this.balance.value != 0) {
+                        this.balance.validationError = 'לא ניתן לבטל קופה עם יתרה שונה מ-0';
+                    }
+                }
                 this.family.notifyChange();
             }
         })
@@ -91,7 +105,7 @@ export class Transactions extends IdEntity {
             where: () => [t.type.isEqualTo(type).and(t.account.isEqualTo(accountId))]
         }));
         let options = r.rows.map(x => x.option);
-        
+
         if (options.length == 0) {
             if (type == TransactionType.withdrawal)
                 options.push('vbucks');
@@ -203,7 +217,7 @@ export class Requests extends IdEntity {
         if (r.status.value != RequestStatus.pending)
             throw new Error('לא ניתן לעדכן סטטוס לבקשה זו');
         r.status.value = approve ? RequestStatus.approved : RequestStatus.denied;
-        
+
         if (r.status.value == RequestStatus.approved) {
             let t = context.for(Transactions).create();
             t.account.value = r.account.value;
