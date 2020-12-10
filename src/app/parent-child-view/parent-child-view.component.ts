@@ -122,7 +122,10 @@ export class ParentChildViewComponent implements OnInit, OnDestroy {
     let amount = new AmountColumn("כמה להפקיד?");
     let targetAccountId = new IdColumn({
       dataControlSettings: () => ({
-        valueList: () => this.context.for(Accounts).getValueList({ captionColumn: e => e.name, where: e => e.isPrimary.isEqualTo(false) }),
+        valueList:async  () => this.accounts.map(x => ({
+          id: x.id.value,
+          caption: x.name.value
+        })),
       })
 
     });
