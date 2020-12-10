@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Context, ServerFunction, IdColumn } from '@remult/core';
 import { Accounts, Requests, RequestStatus, Transactions, TransactionType } from '../accounts/accounts';
 import { AmountColumn } from '../accounts/Amount-Column';
@@ -7,7 +7,8 @@ import { YesNoQuestionComponent } from '../common/yes-no-question/yes-no-questio
 import { FamilyMembers } from '../families/families';
 import { DestroyHelper, ServerEventsService } from '../server/server-events-service';
 import { Roles } from '../users/roles';
-
+import ConfettiGenerator from "confetti-js";
+import { settings } from 'cluster';
 @Component({
   selector: 'app-parent-child-view',
   templateUrl: './parent-child-view.component.html',
@@ -32,6 +33,8 @@ export class ParentChildViewComponent implements OnInit, OnDestroy {
       return a.id.value;
   }
 
+  @ViewChild('confettiCanvas', { static: true }) canvas;
+  confetti: ConfettiGenerator;
   async ngOnInit() {
 
     this.loadTransactions();
@@ -44,26 +47,41 @@ export class ParentChildViewComponent implements OnInit, OnDestroy {
     return this.context.isAllowed(Roles.parent);
   }
   loading = false;
+  reload = false;
   async loadTransactions() {
-    if (this.loading)
+    if (this.loading) {
+      this.reload = true;
       return;
+    }
+    this.reload = false;
     this.loading = true;
     try {
+      await this.context.for(Accounts).find({
+        where: acc => acc.familyMember.isEqualTo(this.childId)
+      }).then(accounts => {
+        this.primaryAccount = accounts.splice(accounts.findIndex(a => a.isPrimary.value), 1)[0];
+        this.accounts = accounts;
+      });
       let promises: Promise<any>[] = [
-        this.context.for(Accounts).find({
-          where: acc => acc.familyMember.isEqualTo(this.childId)
-        }).then(accounts => {
-          this.primaryAccount = accounts.splice(accounts.findIndex(a => a.isPrimary.value), 1)[0];
-          this.accounts = accounts;
-        }),
+
         this.context.for(Requests).find({ where: t => t.familyMember.isEqualTo(this.childId).and(t.status.isEqualTo(RequestStatus.pending)) }).then(r => this.requests = r)
 
       ];
       if (this.context.isAllowed(Roles.child))
         promises.push(this.context.for(Transactions).find({ where: t => t.familyMember.isEqualTo(this.childId).and(t.viewed.isEqualTo(false)) }).then(async transactions => {
+          let total = 0;
+          for (const t of transactions) {
+            total = t.type.value.delta(t.amount.value);
+          }
+          this.balance = this.primaryAccount.balance.value - total;
 
 
           for (const t of transactions.reverse()) {
+            if (this.confetti)
+              this.confetti.clear();
+            this.confetti = new ConfettiGenerator({ target: this.canvas.nativeElement, respawn: false, max: 100, clock: 50, start_from_edge: true });
+            this.confetti.render();
+
 
             await this.context.openDialog(YesNoQuestionComponent, x => x.args = {
               message: t.type.value.caption + " - " + t.description.value + " " + t.amount.displayValue,
@@ -80,6 +98,8 @@ export class ParentChildViewComponent implements OnInit, OnDestroy {
     }
     finally {
       this.loading = false;
+      if (this.reload)
+        this.loadTransactions();
     }
   }
   displayBalance() {

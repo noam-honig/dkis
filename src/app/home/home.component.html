@@ -29,7 +29,7 @@
           <mat-icon>person_remove</mat-icon>
           הסר חשבון בן משפחה
         </button>
-          <a href="mailto:noam.honig@gmail.com" mat-menu-item>
+        <a href="mailto:noam.honig@gmail.com" mat-menu-item>
           <mat-icon>report_problem</mat-icon>
           דיווח תקלה/בקשה
         </a>
@@ -58,7 +58,7 @@
     <app-choose-family-member *ngIf="showChooseFamilyMember()">
 
     </app-choose-family-member>
-    <app-parent-view *ngIf="showParentView()"  class="flex-container">
+    <app-parent-view *ngIf="showParentView()" class="flex-container">
 
     </app-parent-view>
     <app-child *ngIf="showChildView()" class="flex-container">
@@ -67,36 +67,37 @@
   </div>
 
   <mat-toolbar style="flex: 0 0 auto; display: flex; justify-content: space-between;"
-  *ngIf="showChildView() || showParentView()">
+    *ngIf="showChildView() || showParentView()">
     <button mat-icon-button disableRipple="true" (click)="this.state.activePart = 'savings'"
-        [color]="this.state.activePart == 'savings' ? 'primary' : ''">
-        <mat-icon>savings</mat-icon>
-        <div class="mat-small" style="position:relative; top: -12px;">קופות</div>
+      [color]="this.state.activePart == 'savings' ? 'primary' : ''">
+      <mat-icon>savings</mat-icon>
+      <div class="mat-small" style="position:relative; top: -12px;">קופות</div>
     </button>
 
     <button mat-icon-button disableRipple="true" (click)="requestDeposit()" *ngIf="showChildView()">
-        <mat-icon>monetization_on</mat-icon>
-        <div class="mat-small" style="position:relative; top: -12px;">הכנסה</div>
+      <mat-icon>monetization_on</mat-icon>
+      <div class="mat-small" style="position:relative; top: -12px;">הכנסה</div>
     </button>
 
 
     <button mat-icon-button disableRipple="true" (click)="this.state.activePart = ''"
-        [color]="this.state.activePart == '' ? 'primary' : ''">
-        <mat-icon>home</mat-icon>
-        <div class="mat-small" style="position:relative; top: -12px;">בית</div>
+      [color]="this.state.activePart == '' ? 'primary' : ''">
+      <mat-icon>home</mat-icon>
+      <div class="mat-small" style="position:relative; top: -12px;">בית</div>
     </button>
 
     <button mat-icon-button disableRipple="true" (click)="requestWithdrawal()" *ngIf="showChildView()">
-        <mat-icon>card_giftcard</mat-icon>
-        <div class="mat-small" style="position:relative; top: -12px;">הוצאה</div>
+      <mat-icon>card_giftcard</mat-icon>
+      <div class="mat-small" style="position:relative; top: -12px;">הוצאה</div>
     </button>
 
     <button mat-icon-button disableRipple="true" (click)="this.state.activePart = 'history'"
-        [color]="this.state.activePart == 'history' ? 'primary' : ''">
-        <mat-icon>history</mat-icon>
-        <div class="mat-small" style="position:relative; top: -12px;">היסטוריה</div>
+      [color]="this.state.activePart == 'history' ? 'primary' : ''">
+      <mat-icon>history</mat-icon>
+      <div class="mat-small" style="position:relative; top: -12px;">היסטוריה</div>
     </button>
 
-</mat-toolbar>
+  </mat-toolbar>
 
 </div>
+

@@ -13,6 +13,8 @@ import { ServerSignIn } from '../users/server-sign-in';
 import { ServerEventsService } from '../server/server-events-service';
 import { Requests, Accounts, TransactionType } from '../accounts/accounts';
 
+
+
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
@@ -23,6 +25,10 @@ export class HomeComponent implements OnInit {
   constructor(public context: Context, private authService: JwtSessionManager, public state: ServerEventsService) {
 
   }
+  ngOnInit(): void {
+    
+  }
+  
   async register() {
 
     let createFamily = new CreateFamilyController(this.context);
@@ -50,7 +56,7 @@ export class HomeComponent implements OnInit {
   }
   async requestWithdrawal() {
     let t = this.context.for(Requests).create();
-    let primaryAccount = await this.context.for(Accounts).findFirst(x=>x.familyMember.isEqualTo(this.context.user.id).and(x.isPrimary.isEqualTo(true)));
+    let primaryAccount = await this.context.for(Accounts).findFirst(x => x.familyMember.isEqualTo(this.context.user.id).and(x.isPrimary.isEqualTo(true)));
     t.account.value = primaryAccount.id.value;
     t.type.value = TransactionType.withdrawal;
     this.context.openDialog(InputAreaComponent, x => x.args = {
@@ -65,7 +71,7 @@ export class HomeComponent implements OnInit {
   }
   async requestDeposit() {
     let t = this.context.for(Requests).create();
-    let primaryAccount = await this.context.for(Accounts).findFirst(x=>x.familyMember.isEqualTo(this.context.user.id).and(x.isPrimary.isEqualTo(true)));
+    let primaryAccount = await this.context.for(Accounts).findFirst(x => x.familyMember.isEqualTo(this.context.user.id).and(x.isPrimary.isEqualTo(true)));
     t.account.value = primaryAccount.id.value;
     t.type.value = TransactionType.deposit;
     this.context.openDialog(InputAreaComponent, x => x.args = {
@@ -163,8 +169,6 @@ export class HomeComponent implements OnInit {
   }
 
 
-
-  ngOnInit() {
-  }
+  
 }
 
