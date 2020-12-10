@@ -81,7 +81,7 @@ export class ParentChildViewComponent implements OnInit, OnDestroy {
           for (const t of transactions.reverse()) {
             if (this.confetti)
               this.confetti.clear();
-            this.confetti = new ConfettiGenerator({ target: this.canvas.nativeElement, respawn: false, max: 100, clock: 50, start_from_edge: true });
+            this.confetti = new ConfettiGenerator({ target: this.canvas.nativeElement, respawn: false, max: 200, clock: 25, start_from_edge: true });
             this.confetti.render();
 
 
