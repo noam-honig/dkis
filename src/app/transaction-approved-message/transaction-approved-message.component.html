@@ -1,15 +1,19 @@
-<div style="height: 100%; display:flex;flex-flow: column;justify-content: space-around;text-align: center;align-items: center;">
-    <mat-icon style="font-size: 64px;width: 64px;height: 64px;">{{transaction.type.value.icon}}</mat-icon>
+<mat-card color="accent"
+    style="box-sizing: border-box; height: 100%; display:flex;flex-flow: column;justify-content: space-around;text-align: center;align-items: center;">
+    <mat-icon color="primary" style="font-size: 64px;width: 64px;height: 64px;">{{transaction.type.value.icon}}
+    </mat-icon>
     <div style="align-items: center;">
-        <h3 class="mat-h3" style="margin: 0px;">בקשת</h3>
+        <h3 class="mat-h3" style="margin: 0px;">נרשמה בחשבונך</h3>
         <h1 class="mat-display-1" style="margin: 0px;">{{transaction.type.displayValue}}</h1>
         <h3 class="mat-h3" style="margin: 0px;">של</h3>
-        <div class="mat-display-1" style="margin: 0px;"><span dir="ltr">{{transaction.amount.displayValue}}</span></div>
-        <div class="mat-h3" style="margin: 0px;">עבור</div>
-        <div class="mat-display-1" style="margin: 0px;">{{transaction.description.displayValue}}</div>
-        <div class="mat-h3" style="margin: 0px;">אושרה!</div>
+        <div class="mat-display-2" style="margin: 0px;"><span dir="ltr">{{transaction.amount.displayValue}}</span>
+        </div>
+        <ng-container *ngIf="transaction.description.displayValue != ''">
+            <div class="mat-h3" style="margin: 0px;">עבור</div>
+            <div class="mat-display-1" style="margin: 0px;">{{transaction.description.displayValue}}</div>
+        </ng-container>
     </div>
     <div mat-dialog-actions style="justify-content: space-around;">
         <button mat-stroked-button mat-dialog-close cdkFocusInitial>סגור</button>
     </div>
-</div>
+</mat-card>
