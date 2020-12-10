@@ -39,6 +39,7 @@ import { TransactionsComponent } from './transactions/transactions.component';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatExpansionModule} from '@angular/material/expansion'
 import {MatProgressBarModule } from '@angular/material/progress-bar';
+import { TransactionApprovedMessageComponent } from './transaction-approved-message/transaction-approved-message.component';
 
 
 @NgModule({
@@ -58,7 +59,9 @@ import {MatProgressBarModule } from '@angular/material/progress-bar';
     ParentChildViewComponent,
     ChildComponent,
     
-    TransactionsComponent
+    TransactionsComponent,
+    
+    TransactionApprovedMessageComponent
   ],
   imports: [
     MatMenuModule,
@@ -84,6 +87,6 @@ import {MatProgressBarModule } from '@angular/material/progress-bar';
   ],
   providers: [DialogService, AdminGuard,ServerEventsService],
   bootstrap: [MainComponent],
-  entryComponents: [YesNoQuestionComponent, SignInComponent, InputAreaComponent]
+  entryComponents: [YesNoQuestionComponent, SignInComponent, InputAreaComponent, TransactionApprovedMessageComponent]
 })
 export class AppModule { }

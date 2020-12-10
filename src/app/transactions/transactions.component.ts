@@ -4,6 +4,7 @@ import { Accounts, Transactions } from '../accounts/accounts';
 import { YesNoQuestionComponent } from '../common/yes-no-question/yes-no-question.component';
 import { DestroyHelper, ServerEventsService } from '../server/server-events-service';
 import { Roles } from '../users/roles';
+import { TransactionApprovedMessageComponent } from '../transaction-approved-message/transaction-approved-message.component';
 
 @Component({
   selector: 'app-transactions',
@@ -46,11 +47,7 @@ export class TransactionsComponent implements OnInit {
       if (this.context.isAllowed(Roles.child))
         for (const t of this.transactions.filter(t => !t.viewed.value).reverse()) {
 
-          await this.context.openDialog(YesNoQuestionComponent, x => x.args = {
-            message: t.type.value.caption + " - " + t.description.value + " " + t.amount.displayValue,
-            isAQuestion: false
-
-          });
+          await this.context.openDialog(TransactionApprovedMessageComponent, x => x.transaction = t);
           await Transactions.setViewed(t.id.value);
         }
     }
