@@ -10,8 +10,10 @@
                     </div>
                     <div style="text-align: center;">
                         <span style="visibility: hidden;">₪</span>
-                        <span [class]="this.primaryAccount.balance.value.toLocaleString().length > 4 ? 'mat-display-3' : 'mat-display-4'" dir="ltr"
-                            *ngIf="this.primaryAccount">{{this.primaryAccount.balance.value.toLocaleString()}}</span>
+                        <span
+                            [class]="displayBalance().length > 6 ? 'mat-display-3' : 'mat-display-4'"
+                            dir="ltr"
+                            *ngIf="this.primaryAccount">{{displayBalance()}}</span>
                         <span>₪</span>
                     </div>
                 </div>

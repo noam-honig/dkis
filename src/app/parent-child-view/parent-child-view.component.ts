@@ -3,6 +3,7 @@ import { Context, ServerFunction, IdColumn } from '@remult/core';
 import { Accounts, Requests, RequestStatus, Transactions, TransactionType } from '../accounts/accounts';
 import { AmountColumn } from '../accounts/Amount-Column';
 import { InputAreaComponent } from '../common/input-area/input-area.component';
+import { YesNoQuestionComponent } from '../common/yes-no-question/yes-no-question.component';
 import { FamilyMembers } from '../families/families';
 import { DestroyHelper, ServerEventsService } from '../server/server-events-service';
 import { Roles } from '../users/roles';
@@ -19,7 +20,7 @@ export class ParentChildViewComponent implements OnInit, OnDestroy {
   primaryAccount: Accounts;
 
   requests: Requests[] = [];
-  constructor(private context: Context,public  state: ServerEventsService) {
+  constructor(private context: Context, public state: ServerEventsService) {
     state.onFamilyInfoChangedSubject(() => this.loadTransactions(), this.destroyHelper)
   }
   destroyHelper = new DestroyHelper();
@@ -48,7 +49,7 @@ export class ParentChildViewComponent implements OnInit, OnDestroy {
       return;
     this.loading = true;
     try {
-      await Promise.all([
+      let promises: Promise<any>[] = [
         this.context.for(Accounts).find({
           where: acc => acc.familyMember.isEqualTo(this.childId)
         }).then(accounts => {
@@ -56,24 +57,68 @@ export class ParentChildViewComponent implements OnInit, OnDestroy {
           this.accounts = accounts;
         }),
         this.context.for(Requests).find({ where: t => t.familyMember.isEqualTo(this.childId).and(t.status.isEqualTo(RequestStatus.pending)) }).then(r => this.requests = r)
-      ])
+
+      ];
+      if (this.context.isAllowed(Roles.child))
+        promises.push(this.context.for(Transactions).find({ where: t => t.familyMember.isEqualTo(this.childId).and(t.viewed.isEqualTo(false)) }).then(async transactions => {
+          
+
+          for (const t of transactions.reverse()) {
+
+            await this.context.openDialog(YesNoQuestionComponent, x => x.args = {
+              message: t.type.value.caption + " - " + t.description.value + " " + t.amount.displayValue,
+              isAQuestion: false
+
+            });
+            await Transactions.setViewed(t.id.value);
+          }
+        }));
+      await Promise.all(promises);
+      let delta = this.primaryAccount.balance.value - this.balance;
+      this.balance = this.primaryAccount.balance.value;
+      this.animateChange(delta);
     }
     finally {
       this.loading = false;
     }
   }
+  displayBalance() {
+    return (this.balance - this.balanceAnimationDelta).toLocaleString();
+  }
+  balance = 0;
+  balanceAnimationDelta = 0;
+  private animateChange(change: number) {
+    this.balanceAnimationDelta = change;
+    const steps = 50;
+    let currentStep = 0;
+    let interval = setInterval(() => {
+      currentStep++;
+      this.balanceAnimationDelta = Math.round(change * (steps - currentStep) / steps);
+      if (currentStep == steps) {
+        this.balanceAnimationDelta = 0;
+        clearInterval(interval);
+      }
+    }, 15);
+  }
   async addToSavings() {
     let amount = new AmountColumn("כמה להפקיד?");
     let targetAccountId = new IdColumn({
       dataControlSettings: () => ({
-        valueList:() => this.context.for(Accounts).getValueList({captionColumn:e=>e.name, where: e=> e.isPrimary.isEqualTo(false)})
+        valueList: () => this.context.for(Accounts).getValueList({ captionColumn: e => e.name, where: e => e.isPrimary.isEqualTo(false) }),
       })
+
     });
+    let def = this.accounts.find(x => !x.isPrimary.value);
+    if (def)
+      targetAccountId.value = def.id.value;
+
     this.context.openDialog(InputAreaComponent, x => x.args = {
       title: 'כמה להפקיד?',
       columnSettings: () => [amount, targetAccountId],
       ok: async () => {
         await ParentChildViewComponent.transferBetweenAccounts(this.primaryAccount.id.value, targetAccountId.value, amount.value);
+        await this.loadTransactions();
+        this.animateChange(-amount.value);
       }
     });
   }
@@ -129,9 +174,9 @@ export class ParentChildViewComponent implements OnInit, OnDestroy {
       }
     });
   }
-  
 
-  
+
+
   async deny(r: Requests) {
     await Requests.setStatus(r.id.value, false);
     this.loadTransactions();
@@ -175,5 +220,5 @@ export class ParentChildViewComponent implements OnInit, OnDestroy {
     });
   }
 
-  
+
 }
