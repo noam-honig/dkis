@@ -1,0 +1,13 @@
+<ng-container *ngIf="args">
+<h1 mat-dialog-title>בקשה ל{{args.request.type.displayValue}}</h1>
+<div mat-dialog-content>
+    <p>אבא/אמא,</p>
+  <p>אשרו לי בבקשה {{args.request.type.displayValue}} של <data-control [column]="args.request.amount"></data-control> עבור <data-control [column]="args.request.description"></data-control></p>
+  <p style="text-align: end;">באהבה, {{ context.user.name }}</p>
+</div>
+</ng-container>
+<div mat-dialog-actions align="end">
+  <button mat-stroked-button mat-dialog-close>בטל</button>
+  <span style="padding: 0 4px;"></span>
+  <button mat-stroked-button color="primary" (click)="send()">שלח להורים</button>
+</div>

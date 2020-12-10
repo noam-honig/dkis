@@ -12,6 +12,7 @@ import { Roles } from '../users/roles';
 import { ServerSignIn } from '../users/server-sign-in';
 import { ServerEventsService } from '../server/server-events-service';
 import { Requests, Accounts, TransactionType } from '../accounts/accounts';
+import { CreateRequestComponent } from '../create-request/create-request.component';
 
 
 
@@ -26,9 +27,9 @@ export class HomeComponent implements OnInit {
 
   }
   ngOnInit(): void {
-    
+
   }
-  
+
   async register() {
 
     let createFamily = new CreateFamilyController(this.context);
@@ -54,29 +55,23 @@ export class HomeComponent implements OnInit {
       }
     })
   }
-  async requestWithdrawal() {
-    let t = this.context.for(Requests).create();
-    let primaryAccount = await this.context.for(Accounts).findFirst(x => x.familyMember.isEqualTo(this.context.user.id).and(x.isPrimary.isEqualTo(true)));
-    t.account.value = primaryAccount.id.value;
-    t.type.value = TransactionType.withdrawal;
-    this.context.openDialog(InputAreaComponent, x => x.args = {
-      title: 'תיקנו לי משהו',
-      columnSettings: () => [t.amount, t.description],
-      ok: async () => {
-        await t.save();
-        this.state.refreshState();
-      }
-    });
 
-  }
   async requestDeposit() {
+    await this.createRequest(TransactionType.deposit);
+  }
+
+  async requestWithdrawal() {
+    await this.createRequest(TransactionType.withdrawal);
+  }
+
+  async createRequest(type: TransactionType) {
     let t = this.context.for(Requests).create();
     let primaryAccount = await this.context.for(Accounts).findFirst(x => x.familyMember.isEqualTo(this.context.user.id).and(x.isPrimary.isEqualTo(true)));
     t.account.value = primaryAccount.id.value;
-    t.type.value = TransactionType.deposit;
-    this.context.openDialog(InputAreaComponent, x => x.args = {
-      title: 'קחו כסף לשמור לי',
-      columnSettings: () => [t.amount, t.description],
+    t.type.value = type;
+
+    this.context.openDialog(CreateRequestComponent, x => x.args = {
+      request: t,
       ok: async () => {
         await t.save();
         this.state.refreshState();
@@ -169,6 +164,6 @@ export class HomeComponent implements OnInit {
   }
 
 
-  
+
 }
 
