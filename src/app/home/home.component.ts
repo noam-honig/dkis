@@ -41,14 +41,15 @@ export class HomeComponent implements OnInit {
   }
   async sendFamilyInvite() {
 
-    var sc = new StringColumn("מספר טלפון", { dataControlSettings: () => ({ inputType: 'phone' }) });
+    var sc = new StringColumn("הודעה אישית");
+    sc.value = 'אנא הכנס ללינק: ';
     let url = window.location.origin + '/Home?invite=' + await HomeComponent.createFamilyInviteToken();
     this.context.openDialog(InputAreaComponent, x => x.args = {
       title: 'הזמן בן משפחה',
       columnSettings: () => [sc],
       ok: () => {
-        let phone = sc.value.substring(1);
-        window.open('https://wa.me/+972' + phone + '?text=' + encodeURI('אתה מוזמן לקישור של המשפחה באפליקצית דמי כיס: ' +url), '_blank');
+
+        window.open('https://wa.me/' + '?text=' + encodeURI(sc.value + url), '_blank');
       }
     });
   }
