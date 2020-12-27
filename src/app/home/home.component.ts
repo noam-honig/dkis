@@ -4,7 +4,7 @@ import { Context, getColumnsFromObject, ServerFunction, StringColumn } from '@re
 import { InputAreaComponent } from '../common/input-area/input-area.component';
 import { CreateFamilyController } from '../families/create-family-controller';
 import { CurrentUserInfo, getInfo } from '../families/current-user-info';
-import { Families, FamilyMembers, PasswordColumn } from '../families/families';
+import { Families, FamilyMemberBackground, FamilyMembers, PasswordColumn } from '../families/families';
 import { FamilySignInController } from '../families/family-sign-in-controller';
 import { UpdatePasswordController } from '../families/update-password-controller';
 import { ParentViewComponent } from '../parent-view/parent-view.component';
@@ -13,6 +13,7 @@ import { ServerSignIn } from '../users/server-sign-in';
 import { ServerEventsService } from '../server/server-events-service';
 import { Requests, Accounts, TransactionType } from '../accounts/accounts';
 import { CreateRequestComponent } from '../create-request/create-request.component';
+import { YesNoQuestionComponent } from '../common/yes-no-question/yes-no-question.component';
 
 
 
@@ -39,6 +40,30 @@ export class HomeComponent implements OnInit {
       }
 
     }
+  }
+  async onFileInput(eventArgs: any) {
+
+    for (const file of eventArgs.target.files) {
+      let f: File = file;
+      if (f.size > 20 * 1024 * 1024)
+        this.context.openDialog(YesNoQuestionComponent, x => x.args = { message: "Couldn't load file \"" + f.name + "\" because it exceeds the 20mb limit.", isAQuestion: false });
+      else
+        await new Promise((res) => {
+          var fileReader = new FileReader();
+          fileReader.onload = async (e: any) => {
+            await FamilyMemberBackground.uploadImage(this.state.activeMember,e.target.result);
+            this.state.refreshState();
+          };
+          fileReader.readAsDataURL(f);
+        });
+    }
+    
+    
+   
+
+
+
+
   }
   async sendFamilyInvite() {
 

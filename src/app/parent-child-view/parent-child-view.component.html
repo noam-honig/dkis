@@ -1,4 +1,5 @@
-<div class="flex-container">
+<div class="flex-container" [style.background-image]="'url(/api/images/'+backgroundImage+')'" style="    background-size: cover;
+background-position: top;">
 
     <div class="flex-container" style="flex-basis: 200px; overflow-y: auto;">
 
@@ -41,8 +42,9 @@
 
                 <mat-card-content>
                     <p>
-                        ביקשתי {{t.type.value.caption}} של <strong dir="ltr">{{t.amount.displayValue}}</strong><ng-container *ngIf="t.description.value != ''"> עבור
-                        <strong>{{t.description.value}}</strong></ng-container>
+                        ביקשתי {{t.type.value.caption}} של <strong dir="ltr">{{t.amount.displayValue}}</strong>
+                        <ng-container *ngIf="t.description.value != ''"> עבור
+                            <strong>{{t.description.value}}</strong></ng-container>
                     </p>
                 </mat-card-content>
 
@@ -105,4 +107,5 @@
 
 </div>
 
-<canvas #confettiCanvas style="pointer-events: none;width:100%;height:100%;position: fixed;top:0;z-index: 10000;"></canvas>
+<canvas #confettiCanvas
+    style="pointer-events: none;width:100%;height:100%;position: fixed;top:0;z-index: 10000;"></canvas>

@@ -1,5 +1,5 @@
 import { async } from '@angular/core/testing';
-import { BoolColumn, Context, DateTimeColumn, EntityClass, IdColumn, IdEntity, NumberColumn, StringColumn, UserInfo, ValueListColumn } from '@remult/core';
+import { BoolColumn, Context, DateTimeColumn, Entity, EntityClass, IdColumn, IdEntity, NumberColumn, ServerFunction, StringColumn, UserInfo, ValueListColumn } from '@remult/core';
 import { Accounts } from '../accounts/accounts';
 import { Roles } from '../users/roles';
 import { CurrentUserInfo, getInfo } from './current-user-info';
@@ -27,7 +27,8 @@ export class Families extends IdEntity {
             familyName: this.name.value,
             id: '',
             name: '',
-            roles: [Roles.familyInfo]
+            roles: [Roles.familyInfo],
+            imageId:''
 
         };
     }
@@ -43,6 +44,7 @@ export class FamilyMembers extends IdEntity {
     email = new StringColumn('דוא"ל');
     password = new PasswordColumn();
     archive = new BoolColumn();
+    imageId = new IdColumn();
     constructor(private context: Context) {
         super({
             caption: 'חברי משפחה',
@@ -78,7 +80,8 @@ export class FamilyMembers extends IdEntity {
             familyName: f.name.value,
             id: this.id.value,
             name: this.name.value,
-            roles: [this.isParent.value ? Roles.parent : Roles.child]
+            roles: [this.isParent.value ? Roles.parent : Roles.child],
+            imageId:this.imageId.value
         };
     }
     createAccount() {
@@ -86,6 +89,29 @@ export class FamilyMembers extends IdEntity {
         r.family.value = this.family.value;
         r.familyMember.value = this.id.value;
         return r;
+
+    }
+}
+@EntityClass
+export class FamilyMemberBackground extends IdEntity {
+    familyMember = new IdColumn();
+    backgroundStorage = new StringColumn();
+    constructor() {
+        super('FamilyMemberBackground');
+    }
+    @ServerFunction({ allowed: x => x.isAllowed([Roles.child, Roles.parent]) })
+    static async uploadImage(id: string, image: string, context?: Context) {
+        let mem = await context.for(FamilyMembers).findId(id);
+        for (let x of await context.for(FamilyMemberBackground).find({ where: x => x.familyMember.isEqualTo(id) })) {
+            await x.delete();
+        }
+        let x = context.for(FamilyMemberBackground).create();
+        x.familyMember.value = id;
+        x.backgroundStorage.value = image;
+        await x.save();
+        mem.imageId.value = x.id.value;
+        await mem.save();
+
 
     }
 }

@@ -1,5 +1,6 @@
-<mat-tab-group class="flex-container">
-    <mat-tab *ngFor="let m of members" label="{{m.name.value}}"  class="flex-container">
-        <app-parent-child-view [childId]="m.id" style="height: 100%;" class="flex-container"></app-parent-child-view>
+<mat-tab-group class="flex-container" (selectedTabChange)="tabChanged($event)">
+    <mat-tab *ngFor="let m of members" label="{{m.name.value}}" class="flex-container">
+        <app-parent-child-view [childId]="m.id" [backgroundImage]="m.imageId.value" style="height: 100%;" class="flex-container">
+        </app-parent-child-view>
     </mat-tab>
 </mat-tab-group>

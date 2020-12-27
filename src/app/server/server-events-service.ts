@@ -6,12 +6,15 @@ import { Accounts } from '../accounts/accounts';
 
 @Injectable()
 export class ServerEventsService {
-
+    activeMember: string;;
     constructor(public zone: NgZone, private busy: BusyService, private tokenHelper: JwtSessionManager, private context: Context) {
 
         this.refreshEventListener();
         tokenHelper.tokenInfoChanged = () => {
             this.refreshEventListener();
+            this.activeMember = '';
+            if (context.user)
+                this.activeMember = context.user.id;
 
         };
 
@@ -56,7 +59,7 @@ export class ServerEventsService {
             }
         }
     }
-    refreshState(){
+    refreshState() {
         this.familyInfoChangedSubject.next();
     }
 
@@ -68,8 +71,8 @@ export class ServerEventsService {
     static authorize: (key: string, context: Context) => void = (key: string) => { };
 
 
-    activePart:string='';
-    
+    activePart: string = '';
+
 }
 
 

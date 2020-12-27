@@ -4,7 +4,7 @@ import { Accounts, Requests, RequestStatus, Transactions, TransactionType } from
 import { AmountColumn } from '../accounts/Amount-Column';
 import { InputAreaComponent } from '../common/input-area/input-area.component';
 import { YesNoQuestionComponent } from '../common/yes-no-question/yes-no-question.component';
-import { FamilyMembers } from '../families/families';
+import { FamilyMemberBackground, FamilyMembers } from '../families/families';
 import { DestroyHelper, ServerEventsService } from '../server/server-events-service';
 import { Roles } from '../users/roles';
 import ConfettiGenerator from "confetti-js";
@@ -40,7 +40,10 @@ export class ParentChildViewComponent implements OnInit, OnDestroy {
   async ngOnInit() {
 
     this.loadTransactions();
+
+  
   }
+  @Input()backgroundImage = '';
   isChild() {
 
     return this.context.isAllowed(Roles.child);
@@ -89,6 +92,7 @@ export class ParentChildViewComponent implements OnInit, OnDestroy {
             await Transactions.setViewed(t.id.value);
           }
         }));
+      promises.push(this.context.for(FamilyMembers).findId(this.childId).then(x => this.backgroundImage = x.imageId.value));
       await Promise.all(promises);
       let delta = this.primaryAccount.balance.value - this.balance;
       this.balance = this.primaryAccount.balance.value;
@@ -122,7 +126,7 @@ export class ParentChildViewComponent implements OnInit, OnDestroy {
     let amount = new AmountColumn("כמה להפקיד?");
     let targetAccountId = new IdColumn({
       dataControlSettings: () => ({
-        valueList:async  () => this.accounts.map(x => ({
+        valueList: async () => this.accounts.map(x => ({
           id: x.id.value,
           caption: x.name.value
         })),
