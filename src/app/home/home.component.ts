@@ -122,6 +122,7 @@ export class HomeComponent implements OnInit {
         await mem.save();
         if (mem.autoAllowance.value)
           FamilyMembers.verifyAllowance(mem.id.value);
+          this.state.refreshState();
       }
     });
   }
