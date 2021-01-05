@@ -48,28 +48,16 @@ export class FamilyMembers extends IdEntity {
     imageId = new IdColumn();
     autoAllowance = new BoolColumn('דמי כיס קבועים');
     allowanceAmount = new AmountColumn('סכום דמי כיס');
-    allowanceDayOfWeek = new NumberColumn({
-        caption: 'יום בשבוע לדמי כיס',
-        dataControlSettings: () => ({
-            valueList: [
-                { id: 0, caption: 'ראשון' },
-                { id: 1, caption: 'שני' },
-                { id: 2, caption: 'שלישי' },
-                { id: 3, caption: 'רביעי' },
-                { id: 4, caption: 'חמישי' },
-                { id: 5, caption: 'שישי' },
-                { id: 6, caption: 'שבת' },
-            ]
-        })
+    allowanceDayOfWeek = new ValueListColumn(DayOfWeek, { caption: 'יום בשבוע לדמי כיס' });
 
-    });
+
     lastAllowanceDate = new DateColumn({ allowApiUpdate: false });
     @ServerFunction({ allowed: c => c.isSignedIn() })
     static async verifyAllowance(id: string, context?: Context) {
         let mem = await context.for(FamilyMembers).findId(id);
         let account: Accounts;
         if (mem.autoAllowance.value && mem.allowanceAmount.value) {
-            for (const d of getAllowanceDates(mem.lastAllowanceDate.value, mem.allowanceDayOfWeek.value, new Date())) {
+            for (const d of getAllowanceDates(mem.lastAllowanceDate.value, mem.allowanceDayOfWeek.value.id, new Date())) {
                 if (!account) {
                     account = await context.for(Accounts).findFirst(x => x.familyMember.isEqualTo(id).and(x.isPrimary.isEqualTo(true)));
                 }
@@ -208,4 +196,18 @@ export function getAllowanceDates(lastDate: Date, dayOfWeek: number, currentDate
         d.setDate(d.getDate() + 7);
     }
     return result;
+}
+class DayOfWeek {
+    static sunday = new DayOfWeek(0, 'ראשון');
+    static monday = new DayOfWeek(1, 'שני');
+    static tuesday = new DayOfWeek(2, 'שלישי');
+    static wednesday = new DayOfWeek(3, 'רביעי');
+    static thursday = new DayOfWeek(4, 'חמישי');
+    static friday = new DayOfWeek(5, 'שישי');
+    static saturday = new DayOfWeek(6, 'שבת');
+
+    constructor(public id: number, public caption: string) {
+
+    }
+
 }

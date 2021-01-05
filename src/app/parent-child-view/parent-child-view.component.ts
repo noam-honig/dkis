@@ -53,6 +53,7 @@ export class ParentChildViewComponent implements OnInit, OnDestroy {
   isParent() {
     return this.context.isAllowed(Roles.parent);
   }
+  mem: FamilyMembers;
   loading = false;
   reload = false;
   async loadTransactions() {
@@ -94,7 +95,10 @@ export class ParentChildViewComponent implements OnInit, OnDestroy {
             await Transactions.setViewed(t.id.value);
           }
         }));
-      promises.push(this.context.for(FamilyMembers).findId(this.childId).then(x => this.backgroundImage = x.imageId.value));
+      promises.push(this.context.for(FamilyMembers).findId(this.childId).then(x => {
+        this.backgroundImage = x.imageId.value;
+        this.mem = x;
+      }));
       await Promise.all(promises);
       let delta = this.primaryAccount.balance.value - this.balance;
       this.balance = this.primaryAccount.balance.value;

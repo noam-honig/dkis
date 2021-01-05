@@ -47,7 +47,7 @@ input[type="email"] {
 }
 
 .home button {
-    width:13em;
+    width: 13em;
     margin: 8px;
 }
 
@@ -64,4 +64,9 @@ input[type="email"] {
 
 .overlay {
     max-width: 100% !important;
+}
+.text-bg {
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 16px;
+    padding: 8px;
 }

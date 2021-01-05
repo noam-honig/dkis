@@ -7,16 +7,23 @@ background-position: top;">
             <div class="home">
                 <div style="margin-top: 50px; margin-bottom: 50px;">
                     <div style="text-align: center;" class="mat-h3" *ngIf="isChild()">
-                        כסף בחשבונך
+                        <span class="text-bg">
+                            כסף בחשבונך
+                        </span>
                     </div>
                     <div style="text-align: center;">
-                        <span style="visibility: hidden;">₪</span>
-                        <span [class]="displayBalance().length > 6 ? 'mat-display-3' : 'mat-display-4'" dir="ltr"
-                            *ngIf="this.primaryAccount">{{displayBalance()}}</span>
-                        <span>₪</span>
+                        <div class="text-bg">
+                            <span style="visibility: hidden;">₪</span>
+                            <span [class]="displayBalance().length > 6 ? 'mat-display-3' : 'mat-display-4'" dir="ltr"
+                                *ngIf="this.primaryAccount">{{displayBalance()}}</span>
+                            <span>₪</span>
+                        </div>
                     </div>
                 </div>
-
+                <div *ngIf="mem&&mem.autoAllowance.value">
+                    <span class="text-bg"> {{mem.allowanceAmount.value}} ₪ דמי כיס ביום
+                        {{mem.allowanceDayOfWeek.displayValue}}</span>
+                </div>
                 <div>
                     <button mat-raised-button color="primary" (click)="deposit()" *ngIf="isParent()">הפקדה</button>
                 </div>
@@ -25,8 +32,7 @@ background-position: top;">
                 </div>
 
                 <div>
-                    <button mat-raised-button color="primary" (click)="addToSavings()"
-                        *ngIf="accounts?.length>0">הפקדה
+                    <button mat-raised-button color="primary" (click)="addToSavings()" *ngIf="accounts?.length>0">הפקדה
                         לקופה</button>
                     <button mat-raised-button color="primary" (click)="addAccount()"
                         *ngIf="isChild()&&accounts?.length==0">פתיחת קופת חסכון</button>
