@@ -1,6 +1,7 @@
 import { async } from '@angular/core/testing';
-import { BoolColumn, Context, DateTimeColumn, Entity, EntityClass, IdColumn, IdEntity, NumberColumn, ServerFunction, StringColumn, UserInfo, ValueListColumn } from '@remult/core';
-import { Accounts } from '../accounts/accounts';
+import { BoolColumn, Context, DateColumn, DateTimeColumn, Entity, EntityClass, IdColumn, IdEntity, NumberColumn, ServerFunction, StringColumn, UserInfo, ValueListColumn } from '@remult/core';
+import { Accounts, Transactions, TransactionType } from '../accounts/accounts';
+import { AmountColumn } from '../accounts/Amount-Column';
 import { Roles } from '../users/roles';
 import { CurrentUserInfo, getInfo } from './current-user-info';
 
@@ -28,7 +29,7 @@ export class Families extends IdEntity {
             id: '',
             name: '',
             roles: [Roles.familyInfo],
-            imageId:''
+            imageId: ''
 
         };
     }
@@ -45,6 +46,51 @@ export class FamilyMembers extends IdEntity {
     password = new PasswordColumn();
     archive = new BoolColumn();
     imageId = new IdColumn();
+    autoAllowance = new BoolColumn('דמי כיס קבועים');
+    allowanceAmount = new AmountColumn('סכום דמי כיס');
+    allowanceDayOfWeek = new NumberColumn({
+        caption: 'יום בשבוע לדמי כיס',
+        dataControlSettings: () => ({
+            valueList: [
+                { id: 0, caption: 'ראשון' },
+                { id: 1, caption: 'שני' },
+                { id: 2, caption: 'שלישי' },
+                { id: 3, caption: 'רביעי' },
+                { id: 4, caption: 'חמישי' },
+                { id: 5, caption: 'שישי' },
+                { id: 6, caption: 'שבת' },
+            ]
+        })
+
+    });
+    lastAllowanceDate = new DateColumn({ allowApiUpdate: false });
+    @ServerFunction({ allowed: c => c.isSignedIn() })
+    static async verifyAllowance(id: string, context?: Context) {
+        let mem = await context.for(FamilyMembers).findId(id);
+        let account: Accounts;
+        if (mem.autoAllowance.value && mem.allowanceAmount.value) {
+            for (const d of getAllowanceDates(mem.lastAllowanceDate.value, mem.allowanceDayOfWeek.value, new Date())) {
+                if (!account) {
+                    account = await context.for(Accounts).findFirst(x => x.familyMember.isEqualTo(id).and(x.isPrimary.isEqualTo(true)));
+                }
+                let t = context.for(Transactions).create();
+                t.account.value = account.id.value;
+                t.type.value = TransactionType.deposit;
+                t.amount.value = mem.allowanceAmount.value;
+                t.description.value = 'דמי כיס';
+                t.transactionTime.value = d;
+                t._forceDate = true;
+                await t.save();
+                mem.lastAllowanceDate.value = d;
+
+            }
+            if (account)
+                await mem.save();
+        }
+
+    }
+
+
     constructor(private context: Context) {
         super({
             caption: 'חברי משפחה',
@@ -81,7 +127,7 @@ export class FamilyMembers extends IdEntity {
             id: this.id.value,
             name: this.name.value,
             roles: [this.isParent.value ? Roles.parent : Roles.child],
-            imageId:this.imageId.value
+            imageId: this.imageId.value
         };
     }
     createAccount() {
@@ -136,4 +182,30 @@ export class PasswordColumn extends StringColumn {
             includeInApi: false
         })
     }
+}
+
+
+export function getAllowanceDates(lastDate: Date, dayOfWeek: number, currentDate?: Date) {
+    if (!currentDate)
+        currentDate = new Date();
+    let origDate = new Date(currentDate);
+    currentDate = new Date(new Date().toDateString())
+    let time = origDate.valueOf() - currentDate.valueOf();
+
+    if (!lastDate) {
+        lastDate = new Date(currentDate.toDateString());
+        lastDate.setDate(lastDate.getDate() - 1);
+    }
+    else
+        lastDate = new Date(lastDate.toDateString());
+    let d = new Date(lastDate);
+    let result = [];
+    d.setDate(d.getDate() - d.getDay() + dayOfWeek);
+    if (d <= lastDate)
+        d.setDate(d.getDate() + 7);
+    while (d <= currentDate) {
+        result.push(new Date(new Date(d.toDateString()).valueOf() + time));
+        d.setDate(d.getDate() + 7);
+    }
+    return result;
 }

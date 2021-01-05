@@ -22,7 +22,10 @@
           החלף רקע
           <input #fileInput type="file" (change)="onFileInput($event)" style="display:none;" />
         </button>
-
+        <button mat-menu-item (click)="updateAllowance()" *ngIf="showParentView()">
+          <mat-icon>loop</mat-icon>
+          דמי כיס קבועים
+        </button>
         <button mat-menu-item (click)="resetPassword()" *ngIf="showParentView()">
           <mat-icon>remove_from_queue</mat-icon>
           אתחל סיסמה לבן משפחה

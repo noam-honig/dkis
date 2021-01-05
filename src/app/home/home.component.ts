@@ -51,15 +51,15 @@ export class HomeComponent implements OnInit {
         await new Promise((res) => {
           var fileReader = new FileReader();
           fileReader.onload = async (e: any) => {
-            await FamilyMemberBackground.uploadImage(this.state.activeMember,e.target.result);
+            await FamilyMemberBackground.uploadImage(this.state.activeMember, e.target.result);
             this.state.refreshState();
           };
           fileReader.readAsDataURL(f);
         });
     }
-    
-    
-   
+
+
+
 
 
 
@@ -112,6 +112,18 @@ export class HomeComponent implements OnInit {
       }
     });
 
+  }
+  async updateAllowance() {
+    let mem = await this.context.for(FamilyMembers).findId(this.state.activeMember);
+    await this.context.openDialog(InputAreaComponent, x => x.args = {
+      title: 'הגדרות דמי כיס',
+      columnSettings: () => [mem.autoAllowance, mem.allowanceAmount, mem.allowanceDayOfWeek],
+      ok: async () => {
+        await mem.save();
+        if (mem.autoAllowance.value)
+          FamilyMembers.verifyAllowance(mem.id.value);
+      }
+    });
   }
   async updatePassword() {
     let c = new UpdatePasswordController(this.context);

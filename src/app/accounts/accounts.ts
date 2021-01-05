@@ -22,7 +22,7 @@ export class Accounts extends IdEntity {
             name: 'accounts',
             allowApiInsert: true,
             allowApiUpdate: true,
-            fixedWhereFilter:()=>this.archive.isEqualTo(false),
+            fixedWhereFilter: () => this.archive.isEqualTo(false),
             saving: () => {
                 if (!this.isNew()) {
                     for (const col of [this.familyMember, this.family, this.isPrimary]) {
@@ -72,6 +72,7 @@ export class Transactions extends IdEntity {
             }
         })
     });
+
     amount = new AmountColumn();
     balance = new AmountColumn();
     request = new IdColumn();
@@ -118,6 +119,7 @@ export class Transactions extends IdEntity {
 
 
     }
+    _forceDate = false;
     constructor(private context: Context) {
         super({
             caption: 'תנועות',
@@ -128,7 +130,8 @@ export class Transactions extends IdEntity {
             defaultOrderBy: () => [{ column: this.transactionTime, descending: true }],
             saving: async () => {
                 if (context.onServer && this.isNew()) {
-                    this.transactionTime.value = new Date();
+                    if (!this._forceDate)
+                        this.transactionTime.value = new Date();
                     let acc = await context.for(Accounts).findId(this.account);
                     this.familyMember.value = acc.familyMember.value;
                     this.family.value = acc.family.value;

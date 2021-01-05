@@ -40,10 +40,12 @@ export class ParentChildViewComponent implements OnInit, OnDestroy {
   async ngOnInit() {
 
     this.loadTransactions();
+    if (this.childId)
+      FamilyMembers.verifyAllowance(this.childId);
 
-  
+
   }
-  @Input()backgroundImage = '';
+  @Input() backgroundImage = '';
   isChild() {
 
     return this.context.isAllowed(Roles.child);
