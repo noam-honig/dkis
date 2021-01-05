@@ -2,7 +2,7 @@
 <h1 mat-dialog-title>בקשה ל{{args.request.type.displayValue}}</h1>
 <div mat-dialog-content>
     <p>אבא/אמא,</p>
-  <p>אשרו לי בבקשה {{args.request.type.displayValue}} של <data-control [column]="args.request.amount"></data-control> עבור <data-control [column]="args.request.description"></data-control></p>
+  <p>אשרו לי בבקשה {{args.request.type.displayValue}} של <data-control [column]="args.request.amount"></data-control> עבור <data-control [column]="args.request.description"></data-control><mat-checkbox [(ngModel)]="sendAlsoOnWhatsapp">שלח בקשה גם בווטסאפ</mat-checkbox></p>
   <p style="text-align: end;">באהבה, {{ context.user.name }}</p>
 </div>
 </ng-container>
