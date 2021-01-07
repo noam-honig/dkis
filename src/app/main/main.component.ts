@@ -10,12 +10,8 @@ import { Context } from '@remult/core';
 export class MainComponent implements OnInit {
 
   constructor(public sessionManager: JwtSessionManager, context: Context) {
-    sessionManager.loadSessionFromCookie();
-    if (!context.isSignedIn()) {
-      let t = localStorage .getItem('token');
-      if (t)
-        sessionManager.setToken(t);
-    }
+    
+    
   }
 
   ngOnInit() {

@@ -29,7 +29,7 @@ export class AppComponent {
 
     public dialogService: DialogService,
     public context: Context) {
-    sessionManager.loadSessionFromCookie();
+    
 
   }
   signInText() {

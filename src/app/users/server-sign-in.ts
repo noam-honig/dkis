@@ -26,4 +26,9 @@ export class ServerSignIn {
         }
         return undefined;
     }
+    @ServerFunction({ allowed: () => true })
+    static async validateToken(context?: Context) {
+        return context.isSignedIn();
+
+    }
 }
