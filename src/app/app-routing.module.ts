@@ -41,7 +41,7 @@ const routes: Routes = [
 })
 export class AppRoutingModule { }
 
-function initApp(session: JwtSessionManager, context: Context) {
+export function initApp(session: JwtSessionManager, context: Context) {
   return async () => {
     session.loadSessionFromCookie();
     if (context.isSignedIn()) {
