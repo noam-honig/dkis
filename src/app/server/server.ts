@@ -1,6 +1,7 @@
 //import { CustomModuleLoader } from '../../../../../../repos/radweb/src/app/server/CustomModuleLoader';
 //let moduleLoader = new CustomModuleLoader('/dist-server/repos/radweb/projects/');
 import * as express from 'express';
+import * as cors from 'cors';
 import { ExpressRequestBridgeToDataApiRequest, initExpress } from '@remult/server';
 import * as fs from 'fs';
 import { serverInit } from './server-init';
@@ -18,6 +19,8 @@ import { getInfo } from '../families/current-user-info';
 serverInit().then(async (dataSource) => {
 
     let app = express();
+    app.use(cors());
+
     let serverEvents = new ServerEvents(app);
     let eb = initExpress(app, dataSource, process.env.DISABLE_HTTPS == "true");
     let lastMessage = new Date();
