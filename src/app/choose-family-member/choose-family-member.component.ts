@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { JwtSessionManager } from '@remult/angular';
-import { Context, ServerFunction } from '@remult/core';
+import { BoolColumn, Context, ServerFunction } from '@remult/core';
 import { InputAreaComponent } from '../common/input-area/input-area.component';
 import { getInfo } from '../families/current-user-info';
 import { FamilyMembers, PasswordColumn } from '../families/families';
@@ -25,12 +25,13 @@ export class ChooseFamilyMemberComponent implements OnInit {
   }
   async signInAsMember(m: FamilyMembers) {
     let password = new PasswordColumn();
+    let rememberMe = new BoolColumn('זכור אותי במכשיר זה');
     await this.context.openDialog(InputAreaComponent, x => x.args = {
       title: 'סיסמה?',
-      helpText:'אם אתם לא מצליחים להכנס, בקשו מאחד ההורים לאתחל לכם סיסמה. אם גם הם לא מצליחים צרו אתנו קשר ונעזור',
-      columnSettings:()=>[password],
+      helpText: 'אם אתם לא מצליחים להכנס, בקשו מאחד ההורים לאתחל לכם סיסמה. אם גם הם לא מצליחים צרו אתנו קשר ונעזור',
+      columnSettings: () => [password, rememberMe],
       ok: async () => {
-        this.authService.setToken( await ChooseFamilyMemberComponent.memberSignIn(m.id.value, password.value));
+        this.authService.setToken(await ChooseFamilyMemberComponent.memberSignIn(m.id.value, password.value), rememberMe.value);
       }
     })
 
@@ -43,3 +44,4 @@ export class ChooseFamilyMemberComponent implements OnInit {
     return ServerSignIn.helper.createSecuredTokenBasedOn(await m.createUserInfo());
   }
 }
+ 
