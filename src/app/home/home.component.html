@@ -55,15 +55,55 @@
     </mat-toolbar-row>
   </mat-toolbar>
 
-  <div *ngIf="!showChildView()&&!showParentView()&&!showChooseFamilyMember()">
-    <h2>דמי כיס</h2>
-    <p>ברוכים הבאים לאפליקצית דמי כיס</p>
-    <p>אפליקציית דמי כיס עוזרת לעקוב אחרי דמי הכיס של הילדים, ועוזרת לילדים ללמוד התנהלות כלכלית</p>
-    <h3>משתמשים חדשים</h3>
-    <button mat-raised-button (click)="register()" *ngIf="!context.isSignedIn()">הרשמה</button>
-    <h3>משתמשים קיימים</h3>
-    <button mat-raised-button (click)="signIn()" *ngIf="!context.isSignedIn()">כניסה </button>
+  <div *ngIf="!showChildView()&&!showParentView()&&!showChooseFamilyMember()" style="padding: 8px;">
 
+    <mat-card style="text-align: center;">
+
+      <h1 class="mat-display-1" style="margin-top: 32px;margin-bottom: 32px;">אפליקציית דמי כיס
+        <p class="mat-h2">(גרסת בטא)</p>
+      </h1>
+
+      <p class="mat-h2">הדרך הפשוטה והיעילה לניהול<br /> כספי הילדים</p>
+
+      <div style="display: flex; flex-wrap: wrap;align-items:stretch;margin-top: 32px;margin-bottom: 32px;">
+
+        <div class="mat-h3" style="flex-basis: 120px; flex-shrink: 0;flex-grow: 1;">
+          <mat-icon>monetization_on</mat-icon>
+          <div>
+            רישום הכנסות והוצאות
+          </div>
+        </div>
+
+        <div class="mat-h3" style="flex-basis: 120px; flex-shrink: 0;flex-grow: 1;">
+          <mat-icon>schedule</mat-icon>
+          <div>
+            דמי כיס קבועים
+          </div>
+        </div>
+
+        <div class="mat-h3" style="flex-basis: 120px; flex-shrink: 0;flex-grow: 1;">
+          <mat-icon>savings</mat-icon>
+          <div>
+            קופות חיסכון
+          </div>
+        </div>
+
+        <div class="mat-h3" style="flex-basis: 120px; flex-shrink: 0;flex-grow: 1;">
+          <mat-icon>school</mat-icon>
+          <div>
+            ממשק לילדים
+          </div>
+        </div>
+
+      </div>
+
+      <p>אפליקציית דמי כיס עוזרת לעקוב אחרי דמי הכיס של הילדים, ועוזרת לילדים ללמוד התנהלות כלכלית</p>
+      <div style="display: flex;flex-flow: column;">
+        <button style="margin: 8px;" mat-raised-button color="primary" (click)="register()" *ngIf="!context.isSignedIn()">הרשמה למשתמש
+          חדש</button>
+        <button style="margin: 8px;" mat-raised-button (click)="signIn()" *ngIf="!context.isSignedIn()">כניסת משתמש קיים</button>
+        </div>
+    </mat-card>
   </div>
   <div style="flex: 1 1 auto;display: flex;flex-direction: column;">
 
