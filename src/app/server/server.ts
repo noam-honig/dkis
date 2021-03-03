@@ -19,7 +19,7 @@ import { getInfo } from '../families/current-user-info';
 serverInit().then(async (dataSource) => {
 
     let app = express();
-    app.use(cors());
+    //app.use(cors());
 
     let serverEvents = new ServerEvents(app);
     let eb = initExpress(app, dataSource, process.env.DISABLE_HTTPS == "true");
