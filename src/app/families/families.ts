@@ -103,6 +103,12 @@ export class FamilyMembers extends IdEntity {
                     }
 
                 }
+                if (this.allowanceAmount.value != this.allowanceAmount.originalValue ||
+                    this.autoAllowance.value && !this.autoAllowance.originalValue) {
+                    let d = new Date();
+                    d.setDate(d.getDate() - 1);// last day so if today is the allowance day, we want them to receive it.
+                    this.lastAllowanceDate.value = d;
+                }
             }
 
         })

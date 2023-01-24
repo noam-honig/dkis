@@ -9,7 +9,7 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "ng-serve": "ng serve",
-    "node-serve": "./node_modules/.bin/tsc-watch -p tsconfig.server.json --onSuccess \"npm run server:dev-run\"",
+    "node-serve": "tsc-watch -p tsconfig.server.json --onSuccess \"npm run server:dev-run\"",
     "server:dev-run": "node --inspect dist-server/server/server.js",
     "ng:build": "ng build --prod",
     "server:build-watch": "tsc -p tsconfig.server.json --watch",
