@@ -5,6 +5,7 @@ import { AmountColumn } from './Amount-Column';
 import moment from 'moment';
 import { SelectValueDialogComponent } from '@remult/angular';
 import { SqlBuilder } from '../common/sql-builder';
+import { getInfo } from '../families/current-user-info';
 
 @EntityClass
 export class Accounts extends IdEntity {
@@ -20,8 +21,10 @@ export class Accounts extends IdEntity {
         super({
             caption: 'חשבונות',
             name: 'accounts',
-            allowApiInsert: true,
-            allowApiUpdate: true,
+            allowApiRead: c => c.isSignedIn(),
+            allowApiInsert: c => c.isSignedIn(),
+            allowApiUpdate: c => c.isSignedIn(),
+            apiDataFilter: () => this.family.isEqualTo(getInfo(this.context).familyId),
             fixedWhereFilter: () => this.archive.isEqualTo(false),
             saving: () => {
                 if (!this.isNew()) {
@@ -126,7 +129,9 @@ export class Transactions extends IdEntity {
             name: 'transactions',
             allowApiUpdate: false,
             allowApiDelete: false,
+            allowApiRead: c => c.isSignedIn(),
             allowApiInsert: Roles.parent,
+            apiDataFilter: () => this.family.isEqualTo(getInfo(this.context).familyId),
             defaultOrderBy: () => [{ column: this.transactionTime, descending: true }],
             saving: async () => {
                 if (context.onServer && this.isNew()) {
@@ -201,7 +206,8 @@ export class Requests extends IdEntity {
             allowApiUpdate: false,
             allowApiDelete: false,
             allowApiInsert: true,
-
+            allowApiRead: c => c.isSignedIn(),
+            apiDataFilter: () => this.family.isEqualTo(getInfo(this.context).familyId),
             defaultOrderBy: () => [{ column: this.timestamp, descending: true }],
             saving: async () => {
                 if (context.onServer && this.isNew()) {

@@ -13,7 +13,10 @@ export class Families extends IdEntity {
     constructor(private context: Context) {
         super({
             caption: 'משפחות',
-            name: 'families'
+            name: 'families',
+            allowApiRead: c => c.isSignedIn(),
+            apiDataFilter: () => this.id.isEqualTo(getInfo(this.context).familyId),
+            
         })
     }
     createMember(name: string) {
@@ -83,6 +86,7 @@ export class FamilyMembers extends IdEntity {
         super({
             caption: 'חברי משפחה',
             name: 'familyMembers',
+            allowApiRead: c => c.isSignedIn(),
             allowApiInsert: Roles.parent,
             defaultOrderBy: () =>
                 [{ column: this.isParent, descending: true }, this.name],
@@ -137,7 +141,10 @@ export class FamilyMemberBackground extends IdEntity {
     familyMember = new IdColumn();
     backgroundStorage = new StringColumn();
     constructor() {
-        super('FamilyMemberBackground');
+        super({
+            name: 'FamilyMemberBackground',
+            allowApiCRUD: false
+        });
     }
     @ServerFunction({ allowed: x => x.isAllowed([Roles.child, Roles.parent]) })
     static async uploadImage(id: string, image: string, context?: Context) {

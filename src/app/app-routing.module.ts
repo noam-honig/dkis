@@ -46,7 +46,17 @@ export function initApp(context: Context) {
     const user = await ServerSignIn.validateToken();
     if (user) {
       context._setUser(user);
-      //let t = localStorage.getItem('token');
+    }
+    else {
+      let t = localStorage.getItem('token');
+      if (t) {
+        let user = await HomeComponent.signInWithInvite(t);
+        if (user) {
+          context._setUser(user);
+          localStorage.removeItem('token');
+        }
+      }
+
     }
   }
 }

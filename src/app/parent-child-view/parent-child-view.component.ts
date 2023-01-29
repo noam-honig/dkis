@@ -115,16 +115,19 @@ export class ParentChildViewComponent implements OnInit, OnDestroy {
   }
   balance = 0;
   balanceAnimationDelta = 0;
+  interval!: NodeJS.Timer;
   private animateChange(change: number) {
+    if (this.interval)
+      clearInterval(this.interval);
     this.balanceAnimationDelta = change;
     const steps = 50;
     let currentStep = 0;
-    let interval = setInterval(() => {
+    this.interval = setInterval(() => {
       currentStep++;
       this.balanceAnimationDelta = Math.round(change * (steps - currentStep) / steps);
       if (currentStep == steps) {
         this.balanceAnimationDelta = 0;
-        clearInterval(interval);
+        clearInterval(this.interval);
       }
     }, 15);
   }
