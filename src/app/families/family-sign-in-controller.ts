@@ -26,7 +26,7 @@ export class FamilySignInController {
         let f = await this.context.for(Families).findId(parent.family);
         if (parent.password.value && !Users.passwordHelper.verify(this.password.value, parent.password.value))
             throw new Error("סיסמה שגויה");
-        return ServerSignIn.helper.createSecuredTokenBasedOn(f.createFamilyUserInfo());
+        return ServerSignIn.setSessionUser(this.context, await parent.createUserInfo())
     }
 
 }

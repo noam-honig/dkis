@@ -35,10 +35,6 @@ export class CreateFamilyController {
         let child = f.createMember(this.childName.value);
         child.name.value = this.childName.value;
         await child.save();
-
-        return {
-            family: ServerSignIn.helper.createSecuredTokenBasedOn(f.createFamilyUserInfo()),
-            parent: ServerSignIn.helper.createSecuredTokenBasedOn(await p.createUserInfo())
-        };
+        return ServerSignIn.setSessionUser(this.context, await p.createUserInfo());
     }
 }

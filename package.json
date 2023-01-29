@@ -33,10 +33,13 @@
     "@remult/core": "^2.0.16",
     "@remult/server": "^2.0.16",
     "@remult/server-postgres": "^2.0.16",
+    "@types/csurf": "^1.11.2",
     "@types/express": "^4.17.9",
     "compression": "^1.7.3",
     "confetti-js": "0.0.18",
+    "cookie-session": "^2.0.0",
     "cors": "^2.8.5",
+    "csurf": "^1.11.0",
     "dotenv": "^8.1.0",
     "express": "^4.16.4",
     "express-force-https": "^1.0.0",
@@ -55,9 +58,11 @@
     "@angular/cli": "~8.3.19",
     "@angular/compiler-cli": "~8.2.14",
     "@angular/language-service": "~8.2.14",
-    "@types/node": "~8.9.4",
+    "@types/cookie-session": "^2.0.44",
     "@types/jasmine": "~3.3.8",
     "@types/jasminewd2": "~2.0.3",
+    "@types/node": "~8.9.4",
+    "@types/pg": "^7.14.4",
     "codelyzer": "^5.0.0",
     "jasmine-core": "~3.8.0",
     "jasmine-spec-reporter": "~4.2.1",
@@ -68,9 +73,8 @@
     "karma-jasmine-html-reporter": "^1.7.0",
     "protractor": "~5.4.0",
     "ts-node": "~7.0.0",
-    "tslint": "~5.15.0",
-    "typescript": "~3.5.3",
     "tsc-watch": "^4.0.0",
-    "@types/pg": "^7.14.4"
+    "tslint": "~5.15.0",
+    "typescript": "~3.5.3"
   }
 }

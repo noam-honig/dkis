@@ -16,19 +16,16 @@ import { HomeComponent } from '../../home/home.component';
   styleUrls: ['./register.component.scss']
 })
 export class RegisterComponent implements OnInit {
-  constructor(private auth: JwtSessionManager,private context:Context,private route:RouteHelperService) {
+  constructor(private auth: JwtSessionManager, private context: Context, private route: RouteHelperService) {
 
 
   }
-  
-
-  confirmPassword = new StringColumn({ caption: 'Confirm Password',dataControlSettings:()=>({ inputType: 'password' })});
+  confirmPassword = new StringColumn({ caption: 'Confirm Password', dataControlSettings: () => ({ inputType: 'password' }) });
   helpers = this.context.for(Users).gridSettings({
     numOfColumnsInGrid: 0,
     allowUpdate: true,
     columnSettings: h => [
       h.name,
-      
       h.password,
       { column: this.confirmPassword },
     ],
@@ -37,7 +34,7 @@ export class RegisterComponent implements OnInit {
         if (h.password.value != this.confirmPassword.value) {
           h.password.validationError = "passwords do not match";
         }
-    } 
+    }
   });
 
 
@@ -50,7 +47,7 @@ export class RegisterComponent implements OnInit {
     try {
       let userInfo = this.helpers.currentRow;
       await this.helpers._doSavingRow(userInfo);
-      this.auth.setToken(await ServerSignIn.signIn(userInfo.name.value, this.confirmPassword.value));
+      this.context._setUser(await ServerSignIn.signIn(userInfo.name.value, this.confirmPassword.value));
       this.route.navigateToComponent(HomeComponent);
     }
     catch (err) {

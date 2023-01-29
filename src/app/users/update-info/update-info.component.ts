@@ -20,9 +20,9 @@ export class UpdateInfoComponent implements OnInit {
 
 
   }
-  
 
-  confirmPassword = new StringColumn({ caption: 'Confirm Password',dataControlSettings:()=>({inputType: 'password'})  , defaultValue: Users.emptyPassword });
+
+  confirmPassword = new StringColumn({ caption: 'Confirm Password', dataControlSettings: () => ({ inputType: 'password' }), defaultValue: Users.emptyPassword });
   helpers = this.context.for(Users).gridSettings({
     numOfColumnsInGrid: 0,
     allowUpdate: true,
@@ -57,8 +57,8 @@ export class UpdateInfoComponent implements OnInit {
         this.dialog.info("Update saved - thanks");
         this.confirmPassword.value = this.helpers.currentRow.password.value ? Users.emptyPassword : '';
         if (passwordChanged) {
-          
-          this.auth.setToken(await ServerSignIn.signIn(this.helpers.currentRow.name.value, thePassword));
+
+          this.context._setUser(await ServerSignIn.signIn(this.helpers.currentRow.name.value, thePassword));
         }
       }
     }

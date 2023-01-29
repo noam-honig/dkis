@@ -1,11 +1,11 @@
 //import { CustomModuleLoader } from '../../../../../../repos/radweb/src/app/server/CustomModuleLoader';
 //let moduleLoader = new CustomModuleLoader('/dist-server/repos/radweb/projects/');
-import * as express from 'express';
-import * as cors from 'cors';
-import { ExpressRequestBridgeToDataApiRequest, initExpress } from '@remult/server';
-import * as fs from 'fs';
+import express from 'express';
+import { initExpress } from '@remult/server';
+import fs from 'fs';
 import { serverInit } from './server-init';
 import '../app.module';
+import csrf from "csurf";
 
 
 import { ServerSignIn } from "../users/server-sign-in";
@@ -15,11 +15,24 @@ import { Families, FamilyMemberBackground, FamilyMembers, FamilyTools } from '..
 import { ServerContext } from '@remult/core';
 import { Roles } from '../users/roles';
 import { getInfo } from '../families/current-user-info';
+import session from 'cookie-session'
 
 serverInit().then(async (dataSource) => {
 
     let app = express();
-    //app.use(cors());
+    app.use('/api', session({ secret: process.env.TOKEN_SIGN_KEY || 'my secret' }))
+    app.use('/api', (req, res, next) => {
+        //disable csrf for the `validateToken` backend method that is the first call of the web site.
+        const currentUserMethodName: keyof typeof ServerSignIn = 'validateToken';
+        if (req.path === '/' + currentUserMethodName)
+            csrf({ ignoreMethods: ["post"] })(req, res, next);
+        else
+            csrf({})(req, res, next);
+    });
+    app.use("/api", (req, res, next) => {
+        res.cookie("XSRF-TOKEN", req.csrfToken());
+        next();
+    });
 
     let serverEvents = new ServerEvents(app);
     let eb = initExpress(app, dataSource, process.env.DISABLE_HTTPS == "true");
@@ -31,6 +44,11 @@ serverInit().then(async (dataSource) => {
         }
     };
     ServerSignIn.helper = new JWTCookieAuthorizationHelper(eb, process.env.TOKEN_SIGN_KEY);
+    eb.preProcessRequestAndReturnTrueToAuthorize = [x => {
+        //@ts-ignore
+        x.user = x.r.session['user']
+        return !!x.user;
+    }]
     let area = eb.addArea('/api/images');
     app.get('/api/images/:id', (req, res) => {
         area.process(async (r1, res1) => {

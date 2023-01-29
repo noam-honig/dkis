@@ -1,4 +1,4 @@
-import { RemultModule, NotSignedInGuard, SignedInGuard, JwtSessionManager } from '@remult/angular';
+import { RemultModule, NotSignedInGuard, SignedInGuard } from '@remult/angular';
 import { NgModule, ErrorHandler, APP_INITIALIZER } from '@angular/core';
 import { Routes, RouterModule, Route, ActivatedRouteSnapshot } from '@angular/router';
 import { HomeComponent } from './home/home.component';
@@ -32,7 +32,7 @@ const routes: Routes = [
     ,
     {
       provide: APP_INITIALIZER,
-      deps: [JwtSessionManager, Context],
+      deps: [Context],
       useFactory: initApp,
       multi: true,
 
@@ -41,17 +41,12 @@ const routes: Routes = [
 })
 export class AppRoutingModule { }
 
-export function initApp(session: JwtSessionManager, context: Context) {
+export function initApp(context: Context) {
   return async () => {
-    session.loadSessionFromCookie();
-    if (context.isSignedIn()) {
-      if (!await ServerSignIn.validateToken())
-        session.signout();
-    }
-    if (!context.isSignedIn()) {
-      let t = localStorage.getItem('token');
-      if (t)
-        session.setToken(t);
+    const user = await ServerSignIn.validateToken();
+    if (user) {
+      context._setUser(user);
+      //let t = localStorage.getItem('token');
     }
   }
 }

@@ -6,7 +6,7 @@ import { DialogService } from '../dialog';
 
 
 
-
+//I think this is not used - including the app component
 @Component({
   selector: 'app-sign-in',
   templateUrl: './sign-in.component.html',
@@ -24,11 +24,12 @@ export class SignInComponent implements OnInit {
   async signIn() {
     if (this.canceling)
       return;
-    if (!this.user || this.user.length < 2 || !(await this.authService.setToken(await ServerSignIn.signIn(this.user, this.password)))) {
-      this.dialog.yesNoQuestion("Invalid sign in information");
-    }
-    else
-      this.dialogRef.close();
+
+    // if (!this.user || this.user.length < 2 || !(await this.authService.setToken(await ServerSignIn.signIn(this.user, this.password)))) {
+    //   this.dialog.yesNoQuestion("Invalid sign in information");
+    // }
+    // else
+    //   this.dialogRef.close();
   }
   canceling = false;
   cancel() {

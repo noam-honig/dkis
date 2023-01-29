@@ -8,14 +8,13 @@
         <mat-icon>person_outlined</mat-icon>
       </button>
       <mat-menu #menu="matMenu">
+        <button mat-menu-item (click)="exitToFamily()" *ngIf="context.isSignedIn()&&!showChooseFamilyMember()">
+          <mat-icon>supervisor_account</mat-icon>
+         צא למסך בני משפחה
+        </button>
         <button mat-menu-item (click)="updatePassword()" *ngIf="showParentView()||showChildView()">
           <mat-icon>vpn_key</mat-icon>
           עדכן סיסמה
-        </button>
-        <button mat-menu-item (click)="exitToFamily()" *ngIf="context.isSignedIn()&&!showChooseFamilyMember()">
-          <mat-icon>supervisor_account</mat-icon>
-          החלף
-          משתמש
         </button>
         <button mat-menu-item (click)="fileInput.click()" *ngIf="showParentView()||showChildView()">
           <mat-icon>insert_photo</mat-icon>
@@ -99,11 +98,14 @@
 
       <p>אפליקציית דמי כיס עוזרת לעקוב אחרי דמי הכיס של הילדים, ועוזרת לילדים ללמוד התנהלות כלכלית</p>
       <div style="display: flex;flex-flow: column;">
-        <button style="margin: 8px;" mat-raised-button color="primary" (click)="register()" *ngIf="!context.isSignedIn()">הרשמה למשתמש
+        <button style="margin: 8px;" mat-raised-button color="primary" (click)="register()"
+          *ngIf="!context.isSignedIn()">הרשמה למשתמש
           חדש</button>
-        <button style="margin: 8px;" mat-raised-button (click)="signIn()" *ngIf="!context.isSignedIn()">כניסת משתמש קיים</button>
-        </div>
-        <p>דיווח תקלה/בקשה: <a href="mailto:noam.honig@gmail.com?subject=בקשר לאפלקציית דמי כיס"> noam.honig@gmail.com</a></p>
+        <button style="margin: 8px;" mat-raised-button (click)="signIn()" *ngIf="!context.isSignedIn()">כניסת משתמש
+          קיים</button>
+      </div>
+      <p>דיווח תקלה/בקשה: <a href="mailto:noam.honig@gmail.com?subject=בקשר לאפלקציית דמי כיס"> noam.honig@gmail.com</a>
+      </p>
     </mat-card>
   </div>
   <div style="flex: 1 1 auto;display: flex;flex-direction: column;">

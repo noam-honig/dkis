@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { JwtSessionManager, SelectValueDialogComponent } from '@remult/angular';
+import { SelectValueDialogComponent } from '@remult/angular';
 import { Context, getColumnsFromObject, ServerFunction, StringColumn } from '@remult/core';
 import { InputAreaComponent } from '../common/input-area/input-area.component';
 import { CreateFamilyController } from '../families/create-family-controller';
@@ -24,7 +24,7 @@ import { YesNoQuestionComponent } from '../common/yes-no-question/yes-no-questio
 })
 export class HomeComponent implements OnInit {
 
-  constructor(public context: Context, private authService: JwtSessionManager, public state: ServerEventsService) {
+  constructor(public context: Context, public state: ServerEventsService) {
 
 
 
@@ -34,9 +34,7 @@ export class HomeComponent implements OnInit {
 
       let invite = new URLSearchParams(window.location.search).get('invite');
       if (invite) {
-        let token = await HomeComponent.signInWithInvite(invite);
-        this.authService.setToken(token);
-        localStorage.setItem('token', token);
+        this.context._setUser(await HomeComponent.signInWithInvite(invite));
       }
 
     }
@@ -89,7 +87,7 @@ export class HomeComponent implements OnInit {
     try {
       let info = <CurrentUserInfo>await ServerSignIn.helper.validateToken(invite);
       let f = await context.for(Families).findId(info.familyId);
-      return ServerSignIn.helper.createSecuredTokenBasedOn(f.createFamilyUserInfo());
+      return ServerSignIn.setSessionUser(context, f.createFamilyUserInfo());
 
     }
     catch (err) {
@@ -106,9 +104,7 @@ export class HomeComponent implements OnInit {
       title: 'משפחה חדשה',
       columnSettings: () => getColumnsFromObject(createFamily),
       ok: async () => {
-        let r = await createFamily.createAccount();
-        this.authService.setToken(r.parent, true);
-        localStorage.setItem('token', r.family);
+        this.context._setUser(await createFamily.createAccount());
       }
     });
 
@@ -122,7 +118,7 @@ export class HomeComponent implements OnInit {
         await mem.save();
         if (mem.autoAllowance.value)
           FamilyMembers.verifyAllowance(mem.id.value);
-          this.state.refreshState();
+        this.state.refreshState();
       }
     });
   }
@@ -160,9 +156,9 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  signOut() {
-    this.authService.signout();
-    localStorage.setItem('token', undefined);
+  async signOut() {
+    await ServerSignIn.signOut();
+    this.context._setUser(undefined);
   }
   async signIn() {
     let signIn = new FamilySignInController(this.context);
@@ -171,9 +167,8 @@ export class HomeComponent implements OnInit {
       helpText: 'אנא הקלידו את המייל של אחד ההורים והסיסמה',
       title: 'כניסת משפחה',
       ok: async () => {
-        let token = await signIn.signIn();
-        localStorage.setItem('token', token);
-        this.authService.setToken(token);
+        this.context._setUser(await signIn.signIn());
+
       }
     })
   }
@@ -227,12 +222,12 @@ export class HomeComponent implements OnInit {
     return 'הי ' + this.context.user.name;
   }
   async exitToFamily() {
-    this.authService.setToken(await HomeComponent.getFamilyToken(), true);
+    this.context._setUser(await HomeComponent.exitToFamily());
   }
   @ServerFunction({ allowed: c => c.isSignedIn() })
-  static async getFamilyToken(context?: Context) {
+  static async exitToFamily(context?: Context) {
     let f = await context.for(Families).findId(getInfo(context).familyId);
-    return ServerSignIn.helper.createSecuredTokenBasedOn(f.createFamilyUserInfo());
+    return ServerSignIn.setSessionUser(context, f.createFamilyUserInfo());
   }
   showChooseFamilyMember() {
     return this.context.isAllowed(Roles.familyInfo);

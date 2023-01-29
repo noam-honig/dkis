@@ -2,7 +2,7 @@ import { BoolColumn, Context, DateTimeColumn, EntityClass, IdColumn, IdEntity, N
 import { FamilyColumn } from '../families/families';
 import { Roles } from '../users/roles';
 import { AmountColumn } from './Amount-Column';
-import * as moment from 'moment';
+import moment from 'moment';
 import { SelectValueDialogComponent } from '@remult/angular';
 import { SqlBuilder } from '../common/sql-builder';
 

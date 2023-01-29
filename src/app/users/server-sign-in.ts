@@ -22,13 +22,24 @@ export class ServerSignIn {
             }
 
         if (result) {
-            return ServerSignIn.helper.createSecuredTokenBasedOn(<any>result);
+            return this.setSessionUser(context, result);
         }
         return undefined;
     }
     @ServerFunction({ allowed: () => true })
     static async validateToken(context?: Context) {
-        return context.isSignedIn();
+        return context.user;
+    }
+    @ServerFunction({ allowed: c => c.isSignedIn() })
+    static async signOut(context?: Context) {
+        return ServerSignIn.setSessionUser(context, null);
+    }
 
+    static setSessionUser(context: Context, user: UserInfo | null) {
+        //@ts-ignore
+        context.req.r.session['user'] = user;
+        //@ts-ignore
+        context.req.r.sessionOptions.maxAge = 365 * 24 * 60 * 60 * 1000; //remember for a year
+        return user;
     }
 }
